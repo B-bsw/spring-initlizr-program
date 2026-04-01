@@ -1,5 +1,9 @@
 import { buttonBase } from "../constants";
-import type { Option } from "../../types/types";
+
+type ChoiceOption = {
+  key: string;
+  text: string;
+};
 
 export default function ChoiceGroup({
   options,
@@ -7,7 +11,7 @@ export default function ChoiceGroup({
   onChange,
   dark,
 }: {
-  options: Option[];
+  options: ChoiceOption[];
   selected: string;
   onChange: (next: string) => void;
   dark: boolean;
