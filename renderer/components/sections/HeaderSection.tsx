@@ -1,22 +1,22 @@
 import Logo from "../../app/home/Logo";
-import type { Theme } from "../types";
-import { HomeThemeStyle } from "../models/HomeThemeStyle";
+import type { Theme } from "../../types/types";
+import { ThemeStyle } from "../../models/ThemeStyle";
 
-export default function HomeHeaderSection({
+export default function HeaderSection({
   theme,
   onThemeChange,
 }: {
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
 }) {
-  const style = new HomeThemeStyle(theme);
+  const style = new ThemeStyle(theme);
 
   return (
     <header>
       <h1 className="m-0 block max-w-[320px] py-8">
         <a href="/home">
           <span className="block px-1.5 outline-none">
-            <Logo className="block text-[#6db33f]" />
+            <Logo className="block text-lime-600/80" />
           </span>
         </a>
       </h1>

@@ -1,4 +1,4 @@
-import { buttonBase } from "../constants";
+import { buttonBase } from "../../utils/constants";
 
 type ChoiceOption = {
   key: string;
@@ -16,7 +16,9 @@ export default function ChoiceGroup({
   onChange: (next: string) => void;
   dark: boolean;
 }) {
-  const outline = dark ? "border-white text-white" : "border-[#111111] text-[#111111]";
+  const outline = dark
+    ? "border-white text-white hover:bg-zinc-800"
+    : "border-black text-black hover:bg-zinc-200";
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((item) => {
@@ -27,8 +29,10 @@ export default function ChoiceGroup({
             type="button"
             onClick={() => onChange(item.key)}
             className={`${buttonBase} ${
-              active ? "border-[#6db33f] bg-[#6db33f] text-white" : outline
-            }`}
+              active
+                ? "border-lime-600/80 bg-lime-600/80 hover:bg-lime-600 hover:border-lime-600 text-white hover:"
+                : outline
+            } cursor-pointer `}
           >
             {item.text}
           </button>

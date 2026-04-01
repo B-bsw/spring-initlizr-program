@@ -1,7 +1,7 @@
 import ChoiceGroup from "../ui/ChoiceGroup";
-import { HomeThemeStyle } from "../models/HomeThemeStyle";
-import type { Theme } from "../types";
-import type { MetadataModel } from "../models/MetadataMapper";
+import { ThemeStyle } from "../../models/ThemeStyle";
+import type { Theme } from "../../types/types";
+import type { MetadataModel } from "../../models/MetadataMapper";
 
 type Props = {
   theme: Theme;
@@ -26,29 +26,31 @@ type Props = {
   onConfigFormat: (value: string) => void;
 };
 
-export default function HomeFormSection(props: Props) {
-  const style = new HomeThemeStyle(props.theme);
+export default function FormSection(props: Props) {
+  const style = new ThemeStyle(props.theme);
   return (
     <div className="md:flex-1 md:pr-20">
-      <section className="mb-6">
-        <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project</h3>
-        <ChoiceGroup
-          options={props.metadata.lists.project}
-          selected={props.project}
-          onChange={props.onProject}
-          dark={style.isDark}
-        />
-      </section>
+      <div className="flex w-full justify-between">
+        <section className="mb-6">
+          <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project</h3>
+          <ChoiceGroup
+            options={props.metadata.lists.project}
+            selected={props.project}
+            onChange={props.onProject}
+            dark={style.isDark}
+          />
+        </section>
 
-      <section className="mb-6">
-        <h3 className="mb-[0.7rem] text-[14px] font-semibold">Language</h3>
-        <ChoiceGroup
-          options={props.metadata.lists.language}
-          selected={props.language}
-          onChange={props.onLanguage}
-          dark={style.isDark}
-        />
-      </section>
+        <section className="mb-6">
+          <h3 className="mb-[0.7rem] text-[14px] font-semibold">Language</h3>
+          <ChoiceGroup
+            options={props.metadata.lists.language}
+            selected={props.language}
+            onChange={props.onLanguage}
+            dark={style.isDark}
+          />
+        </section>
+      </div>
 
       <section className="mb-6">
         <h3 className="mb-[0.7rem] text-[14px] font-semibold">Spring Boot</h3>
@@ -61,7 +63,9 @@ export default function HomeFormSection(props: Props) {
       </section>
 
       <section className="mb-6">
-        <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project Metadata</h3>
+        <h3 className="mb-[0.7rem] text-[14px] font-semibold">
+          Project Metadata
+        </h3>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Group</span>
           <input

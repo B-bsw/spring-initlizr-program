@@ -1,9 +1,9 @@
-import type { Theme } from "../types";
-import { dependenciesPreview, buttonBase } from "../constants";
-import { HomeThemeStyle } from "../models/HomeThemeStyle";
+import type { Theme } from "../../types/types";
+import { dependenciesPreview, buttonBase } from "../../utils/constants";
+import { ThemeStyle } from "../../models/ThemeStyle";
 
-export default function HomeDependencySection({ theme }: { theme: Theme }) {
-  const style = new HomeThemeStyle(theme);
+export default function DependencySection({ theme }: { theme: Theme }) {
+  const style = new ThemeStyle(theme);
 
   return (
     <div className="md:flex-1">

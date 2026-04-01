@@ -1,6 +1,6 @@
-import type { Theme } from "../types";
+import type { Theme } from "../types/types";
 
-export class HomeThemeStyle {
+export class ThemeStyle {
   constructor(private readonly theme: Theme) {}
 
   get isDark() {

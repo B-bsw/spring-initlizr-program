@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { MetadataService } from "../services/MetadataService";
 import type { MetadataModel } from "../models/MetadataMapper";
-import type { Theme } from "../types";
+import type { Theme } from "../types/types";
 
 export type HomeState = {
   theme: Theme;
@@ -76,19 +76,28 @@ export default function useHomeState() {
   }, []);
 
   useEffect(() => {
-    setState((prev) => ({ ...prev, packageName: [prev.group, prev.artifact].filter(Boolean).join(".") }));
+    setState((prev) => ({
+      ...prev,
+      packageName: [prev.group, prev.artifact].filter(Boolean).join("."),
+    }));
   }, [state.group, state.artifact]);
 
   const setTheme = (theme: Theme) => setState((prev) => ({ ...prev, theme }));
-  const setProject = (project: string) => setState((prev) => ({ ...prev, project }));
-  const setLanguage = (language: string) => setState((prev) => ({ ...prev, language }));
+  const setProject = (project: string) =>
+    setState((prev) => ({ ...prev, project }));
+  const setLanguage = (language: string) =>
+    setState((prev) => ({ ...prev, language }));
   const setBoot = (boot: string) => setState((prev) => ({ ...prev, boot }));
   const setGroup = (group: string) => setState((prev) => ({ ...prev, group }));
-  const setArtifact = (artifact: string) => setState((prev) => ({ ...prev, artifact }));
-  const setPackageName = (packageName: string) => setState((prev) => ({ ...prev, packageName }));
-  const setPackaging = (packaging: string) => setState((prev) => ({ ...prev, packaging }));
+  const setArtifact = (artifact: string) =>
+    setState((prev) => ({ ...prev, artifact }));
+  const setPackageName = (packageName: string) =>
+    setState((prev) => ({ ...prev, packageName }));
+  const setPackaging = (packaging: string) =>
+    setState((prev) => ({ ...prev, packaging }));
   const setJava = (java: string) => setState((prev) => ({ ...prev, java }));
-  const setConfigFormat = (configFormat: string) => setState((prev) => ({ ...prev, configFormat }));
+  const setConfigFormat = (configFormat: string) =>
+    setState((prev) => ({ ...prev, configFormat }));
 
   return {
     state,
