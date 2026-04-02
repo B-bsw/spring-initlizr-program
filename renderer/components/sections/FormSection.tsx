@@ -37,8 +37,7 @@ export default function FormSection(props: Props) {
         <input
           className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
           value={props.name}
-          onChange={(e) => props.onName(e.target.value)}
-          required
+          onChange={(e) => props.onName(e.target.value.trim())}
         />
       </section>
       <div className="flex w-full justify-between gap-5">

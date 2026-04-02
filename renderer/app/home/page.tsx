@@ -19,25 +19,28 @@ export default function HomePage() {
   const handleGenerate = async () => {
     try {
       setGenerating(true);
+      if (!state.outputLocation) {
+        throw new Error("Please select output location");
+      }
       const response = await fetch("/api/starter", { method: "GET" });
       if (!response.ok) {
         throw new Error(`Generate failed (${response.status})`);
       }
 
-      const blob = await response.blob();
-      const filename =
-        response.headers
-          .get("Content-Disposition")
-          ?.match(/filename="?([^"]+)"?/)?.[1] ?? "starter.zip";
-
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = filename;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const zipData = Array.from(new Uint8Array(arrayBuffer));
+      const result = await window.ipc.invoke<
+        { path: string },
+        { zipData: number[]; outputLocation: string; projectName: string }
+      >(
+        "project:generate",
+        {
+          zipData,
+          outputLocation: state.outputLocation,
+          projectName: state.name,
+        },
+      );
+      console.log("Project generated at:", result.path);
     } finally {
       setGenerating(false);
     }
