@@ -1,5 +1,5 @@
 appId: com.example.todolist
-productName: TODO-List
+productName: Spring-Initializr
 copyright: Copyright © 2026 Sorawit thassadorn
 directories:
   output: dist

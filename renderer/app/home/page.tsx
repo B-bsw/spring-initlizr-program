@@ -34,7 +34,7 @@ export default function HomePage() {
           </button>
           <a
             className="cursor-pointer border-0 bg-transparent opacity-90"
-            href="https://github.com/spring-io/start.spring.io"
+            href="https://github.com/B-bsw/spring-initlizr-program"
             target="_blank"
             rel="noreferrer"
           >

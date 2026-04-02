@@ -1,38 +1,35 @@
-<p align="center"><img src="https://i.imgur.com/a9QWW0v.png"></p>
+# Getting Started
 
-## Usage
+> clone repo to your device
 
-### Create an App
+```bash
+git clone https://github.com/B-bsw/spring-initlizr-program.git
 
-```
-# with npx
-$ npx create-nextron-app my-app --example with-tailwindcss
-
-# with yarn
-$ yarn create nextron-app my-app --example with-tailwindcss
-
-# with pnpm
-$ pnpm dlx create-nextron-app my-app --example with-tailwindcss
+cd spring-initlizr-program
 ```
 
-### Install Dependencies
+> install dependencies and run
 
+```bash
+bun install
+# or
+# npm install
+
+bun dev
+# or
+# npm run dev
 ```
-$ cd my-app
 
-# using yarn or npm
-$ yarn (or `npm install`)
+> build program
 
-# using pnpm
-$ pnpm install --shamefully-hoist
+```bash
+bun run build
+# or
+# npm run build
 ```
 
-### Use it
+# Preview
 
-```
-# development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
-
-# production build
-$ yarn build (or `npm run build` or `pnpm run build`)
-```
+<div align='center'>
+    <img src="./resources/screenshot/preview.png" alt="Logo">
+</div>
