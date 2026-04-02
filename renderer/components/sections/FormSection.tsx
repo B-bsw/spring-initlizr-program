@@ -38,9 +38,10 @@ export default function FormSection(props: Props) {
           className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
           value={props.name}
           onChange={(e) => props.onName(e.target.value)}
+          required
         />
       </section>
-      <div className="flex w-full justify-between">
+      <div className="flex w-full justify-between gap-5">
         <section className="mb-6">
           <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project</h3>
           <ChoiceGroup
@@ -128,7 +129,6 @@ export default function FormSection(props: Props) {
           />
         </label>
       </section>
-
     </div>
   );
 }

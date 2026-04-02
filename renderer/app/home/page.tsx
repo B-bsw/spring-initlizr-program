@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ThemeStyle } from "../../models/ThemeStyle";
 import useHomeState from "../../hooks/useHomeState";
 import HeaderSection from "../../components/sections/HeaderSection";
@@ -14,6 +14,34 @@ import { IconBrandGithubFilled } from "@tabler/icons-react";
 export default function HomePage() {
   const { state, actions, computed } = useHomeState();
   const style = useMemo(() => new ThemeStyle(state.theme), [state.theme]);
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    try {
+      setGenerating(true);
+      const response = await fetch("/api/starter", { method: "GET" });
+      if (!response.ok) {
+        throw new Error(`Generate failed (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      const filename =
+        response.headers
+          .get("Content-Disposition")
+          ?.match(/filename="?([^"]+)"?/)?.[1] ?? "starter.zip";
+
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <main
@@ -81,15 +109,21 @@ export default function HomePage() {
             />
             <DependencySection
               theme={state.theme}
+              dependencies={state.metadata.lists.dependencies}
+              dependencyGroups={state.metadata.lists.dependencyGroups}
+              selectedDependencies={state.selectedDependencies}
               outputLocation={state.outputLocation}
               outputLocationDisplay={computed.outputLocationDisplay}
               onPickOutputLocation={actions.pickOutputLocation}
+              onSelectedDependenciesChange={actions.setSelectedDependencies}
             />
           </div>
         )}
         <FooterSection
           className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full"
           theme={state.theme}
+          generating={generating}
+          onGenerate={handleGenerate}
         />
       </section>
       <aside

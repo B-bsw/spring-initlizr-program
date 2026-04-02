@@ -22,6 +22,7 @@ export type HomeState = {
   configFormat: string;
   outputLocation: string;
   homePath: string;
+  selectedDependencies: string[];
 };
 
 export default function useHomeState() {
@@ -42,6 +43,7 @@ export default function useHomeState() {
     configFormat: "",
     outputLocation: "",
     homePath: "",
+    selectedDependencies: [],
   });
 
   useEffect(() => {
@@ -49,6 +51,7 @@ export default function useHomeState() {
     const load = async () => {
       try {
         const metadata = await MetadataService.getMetadata();
+        console.log(metadata)
         if (!mounted) return;
         setState((prev) => ({
           ...prev,
@@ -124,6 +127,8 @@ export default function useHomeState() {
     setState((prev) => ({ ...prev, configFormat }));
   const setOutputLocation = (outputLocation: string) =>
     setState((prev) => ({ ...prev, outputLocation }));
+  const setSelectedDependencies = (selectedDependencies: string[]) =>
+    setState((prev) => ({ ...prev, selectedDependencies }));
   const saveOutputLocation = (outputLocation: string) => {
     setOutputLocation(outputLocation);
     window.ipc.send("output-location:set", outputLocation);
@@ -159,6 +164,7 @@ export default function useHomeState() {
       setConfigFormat,
       setOutputLocation: saveOutputLocation,
       pickOutputLocation,
+      setSelectedDependencies,
     },
     computed: {
       outputLocationDisplay,

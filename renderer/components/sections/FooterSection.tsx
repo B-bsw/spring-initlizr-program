@@ -5,9 +5,13 @@ import { buttonBase } from "../../utils/constants";
 export default function FooterSection({
   theme,
   className,
+  generating = false,
+  onGenerate,
 }: {
   theme: Theme;
   className: string;
+  generating?: boolean;
+  onGenerate: () => void;
 }) {
   const style = new ThemeStyle(theme);
   return (
@@ -18,8 +22,10 @@ export default function FooterSection({
         <button
           type="button"
           className={`${buttonBase} mr-2 border-[#6db33f] bg-[#6db33f] text-white`}
+          onClick={onGenerate}
+          disabled={generating}
         >
-          Generate
+          {generating ? "Generating..." : "Generate"}
         </button>
         <button
           type="button"

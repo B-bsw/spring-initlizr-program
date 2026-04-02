@@ -19,31 +19,44 @@ export default function useMetadata() {
         const mapped: Metadata = {
           lists: {
             project: (json?.type?.values ?? [])
-              .filter((item: { action?: string }) => item.action === "/starter.zip")
-              .map((item: { id: string; name: string }) => ({ key: item.id, text: item.name })),
-            language: (json?.language?.values ?? []).map((item: { id: string; name: string }) => ({
-              key: item.id,
-              text: item.name,
-            })),
-            boot: (json?.bootVersion?.values ?? []).map((item: { id: string; name: string }) => ({
-              key: item.id,
-              text: item.name,
-            })),
+              .filter(
+                (item: { action?: string }) => item.action === "/starter.zip",
+              )
+              .map((item: { id: string; name: string }) => ({
+                key: item.id,
+                text: item.name,
+              })),
+            language: (json?.language?.values ?? []).map(
+              (item: { id: string; name: string }) => ({
+                key: item.id,
+                text: item.name,
+              }),
+            ),
+            boot: (json?.bootVersion?.values ?? []).map(
+              (item: { id: string; name: string }) => ({
+                key: item.id,
+                text: item.name,
+              }),
+            ),
             meta: {
-              packaging: (json?.packaging?.values ?? []).map((item: { id: string; name: string }) => ({
-                key: item.id,
-                text: item.name,
-              })),
-              java: (json?.javaVersion?.values ?? []).map((item: { id: string; name: string }) => ({
-                key: item.id,
-                text: item.name,
-              })),
-              configurationFileFormat: (json?.configurationFileFormat?.values ?? []).map(
+              packaging: (json?.packaging?.values ?? []).map(
                 (item: { id: string; name: string }) => ({
                   key: item.id,
                   text: item.name,
                 }),
               ),
+              java: (json?.javaVersion?.values ?? []).map(
+                (item: { id: string; name: string }) => ({
+                  key: item.id,
+                  text: item.name,
+                }),
+              ),
+              configurationFileFormat: (
+                json?.configurationFileFormat?.values ?? []
+              ).map((item: { id: string; name: string }) => ({
+                key: item.id,
+                text: item.name,
+              })),
             },
           },
           defaultValues: {
@@ -56,7 +69,8 @@ export default function useMetadata() {
               packageName: json?.packageName?.default ?? "",
               packaging: json?.packaging?.default ?? "",
               java: json?.javaVersion?.default ?? "",
-              configurationFileFormat: json?.configurationFileFormat?.default ?? "",
+              configurationFileFormat:
+                json?.configurationFileFormat?.default ?? "",
             },
           },
         };

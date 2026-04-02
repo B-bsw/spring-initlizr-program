@@ -1,10 +1,14 @@
 export type Option = { key: string; text: string };
+export type DependencyOption = Option & { description: string };
+export type DependencyGroup = { name: string; values: DependencyOption[] };
 
 export type MetadataModel = {
   lists: {
     project: Option[];
     language: Option[];
     boot: Option[];
+    dependencies: DependencyOption[];
+    dependencyGroups: DependencyGroup[];
     meta: {
       packaging: Option[];
       java: Option[];
@@ -31,6 +35,12 @@ type RawStartMetadata = {
   type?: { default?: string; values?: Array<{ id: string; name: string; action?: string }> };
   language?: { default?: string; values?: Array<{ id: string; name: string }> };
   bootVersion?: { default?: string; values?: Array<{ id: string; name: string }> };
+  dependencies?: {
+    values?: Array<{
+      name?: string;
+      values?: Array<{ id: string; name: string; description?: string }>;
+    }>;
+  };
   packaging?: { default?: string; values?: Array<{ id: string; name: string }> };
   javaVersion?: { default?: string; values?: Array<{ id: string; name: string }> };
   configurationFileFormat?: { default?: string; values?: Array<{ id: string; name: string }> };
@@ -56,6 +66,45 @@ export class MetadataMapper {
         boot: [
           { key: "3.4.4", text: "3.4.4" },
           { key: "3.3.10", text: "3.3.10" },
+        ],
+        dependencies: [
+          {
+            key: "web",
+            text: "Spring Web",
+            description: "Build web, including RESTful applications",
+          },
+          {
+            key: "data-jpa",
+            text: "Spring Data JPA",
+            description: "Persist data in SQL stores with Java Persistence API",
+          },
+          {
+            key: "validation",
+            text: "Validation",
+            description: "Bean Validation with Hibernate validator",
+          },
+        ],
+        dependencyGroups: [
+          {
+            name: "Core",
+            values: [
+              {
+                key: "web",
+                text: "Spring Web",
+                description: "Build web, including RESTful applications",
+              },
+              {
+                key: "data-jpa",
+                text: "Spring Data JPA",
+                description: "Persist data in SQL stores with Java Persistence API",
+              },
+              {
+                key: "validation",
+                text: "Validation",
+                description: "Bean Validation with Hibernate validator",
+              },
+            ],
+          },
         ],
         meta: {
           packaging: [
@@ -90,6 +139,17 @@ export class MetadataMapper {
   }
 
   static toViewModel(raw: RawStartMetadata): MetadataModel {
+    const dependencyGroups: DependencyGroup[] = (raw?.dependencies?.values ?? [])
+      .map((group) => ({
+        name: group.name ?? "Dependencies",
+        values: (group.values ?? []).map((item) => ({
+          key: item.id,
+          text: item.name,
+          description: item.description ?? "",
+        })),
+      }))
+      .filter((group) => group.values.length > 0);
+
     const model = {
       lists: {
         project: (raw?.type?.values ?? [])
@@ -103,6 +163,8 @@ export class MetadataMapper {
           key: item.id,
           text: item.name,
         })),
+        dependencies: dependencyGroups.flatMap((group) => group.values),
+        dependencyGroups,
         meta: {
           packaging: (raw?.packaging?.values ?? []).map((item) => ({
             key: item.id,
