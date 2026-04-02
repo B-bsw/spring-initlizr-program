@@ -20,10 +20,6 @@ export default function HeaderSection({
           </span>
         </a>
       </h1>
-      <h2 className="m-0 py-[0.8rem] pb-4">
-        <strong className="block pb-[0.4rem] text-[42px] leading-10 font-semibold">Spring Initializr</strong>
-        <span className="block text-[22px] leading-8 font-semibold">Bootstrap your application with Spring Boot</span>
-      </h2>
       <p className="mt-[0.3rem] text-[16px] leading-[1.6rem] font-extralight">
         Generate a project with selected dependencies and start coding right away.
       </p>

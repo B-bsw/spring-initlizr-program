@@ -7,6 +7,7 @@ type Props = {
   theme: Theme;
   metadata: MetadataModel;
   project: string;
+  name: string;
   language: string;
   boot: string;
   group: string;
@@ -16,6 +17,7 @@ type Props = {
   java: string;
   configFormat: string;
   onProject: (value: string) => void;
+  onName: (value: string) => void;
   onLanguage: (value: string) => void;
   onBoot: (value: string) => void;
   onGroup: (value: string) => void;
@@ -30,6 +32,14 @@ export default function FormSection(props: Props) {
   const style = new ThemeStyle(props.theme);
   return (
     <div className="md:flex-1 md:pr-20">
+      <section className="mb-6">
+        <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project name</h3>
+        <input
+          className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
+          value={props.name}
+          onChange={(e) => props.onName(e.target.value)}
+        />
+      </section>
       <div className="flex w-full justify-between">
         <section className="mb-6">
           <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project</h3>
@@ -118,6 +128,7 @@ export default function FormSection(props: Props) {
           />
         </label>
       </section>
+
     </div>
   );
 }

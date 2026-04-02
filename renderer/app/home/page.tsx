@@ -12,7 +12,7 @@ import { buttonBase } from "../../utils/constants";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 
 export default function HomePage() {
-  const { state, actions } = useHomeState();
+  const { state, actions, computed } = useHomeState();
   const style = useMemo(() => new ThemeStyle(state.theme), [state.theme]);
 
   return (
@@ -45,7 +45,7 @@ export default function HomePage() {
           </a>
         </div>
       </aside>
-      <section className="mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
+      <section className="hide-scrollbar mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
         <HeaderSection theme={state.theme} onThemeChange={actions.setTheme} />
         {state.loading ? (
           <div className="text-[14px] opacity-80">Loading metadata…</div>
@@ -59,6 +59,7 @@ export default function HomePage() {
               theme={state.theme}
               metadata={state.metadata}
               project={state.project}
+              name={state.name}
               language={state.language}
               boot={state.boot}
               group={state.group}
@@ -68,6 +69,7 @@ export default function HomePage() {
               java={state.java}
               configFormat={state.configFormat}
               onProject={actions.setProject}
+              onName={actions.setName}
               onLanguage={actions.setLanguage}
               onBoot={actions.setBoot}
               onGroup={actions.setGroup}
@@ -77,7 +79,12 @@ export default function HomePage() {
               onJava={actions.setJava}
               onConfigFormat={actions.setConfigFormat}
             />
-            <DependencySection theme={state.theme} />
+            <DependencySection
+              theme={state.theme}
+              outputLocation={state.outputLocation}
+              outputLocationDisplay={computed.outputLocationDisplay}
+              onPickOutputLocation={actions.pickOutputLocation}
+            />
           </div>
         )}
         <FooterSection

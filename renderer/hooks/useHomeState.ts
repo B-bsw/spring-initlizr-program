@@ -11,6 +11,7 @@ export type HomeState = {
   loading: boolean;
   error: string | null;
   project: string;
+  name: string;
   language: string;
   boot: string;
   group: string;
@@ -19,6 +20,8 @@ export type HomeState = {
   packaging: string;
   java: string;
   configFormat: string;
+  outputLocation: string;
+  homePath: string;
 };
 
 export default function useHomeState() {
@@ -28,6 +31,7 @@ export default function useHomeState() {
     loading: true,
     error: null,
     project: "",
+    name: "",
     language: "",
     boot: "",
     group: "",
@@ -36,6 +40,8 @@ export default function useHomeState() {
     packaging: "",
     java: "",
     configFormat: "",
+    outputLocation: "",
+    homePath: "",
   });
 
   useEffect(() => {
@@ -50,6 +56,7 @@ export default function useHomeState() {
           loading: false,
           error: null,
           project: metadata.defaultValues.project,
+          name: metadata.defaultValues.meta.name,
           language: metadata.defaultValues.language,
           boot: metadata.defaultValues.boot,
           group: metadata.defaultValues.meta.group,
@@ -76,6 +83,22 @@ export default function useHomeState() {
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+    const loadOutputLocation = async () => {
+      const [value, homePath] = await Promise.all([
+        window.ipc.invoke<string>("output-location:get"),
+        window.ipc.invoke<string>("output-location:home"),
+      ]);
+      if (!mounted) return;
+      setState((prev) => ({ ...prev, outputLocation: value, homePath }));
+    };
+    loadOutputLocation();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     setState((prev) => ({
       ...prev,
       packageName: [prev.group, prev.artifact].filter(Boolean).join("."),
@@ -85,6 +108,7 @@ export default function useHomeState() {
   const setTheme = (theme: Theme) => setState((prev) => ({ ...prev, theme }));
   const setProject = (project: string) =>
     setState((prev) => ({ ...prev, project }));
+  const setName = (name: string) => setState((prev) => ({ ...prev, name }));
   const setLanguage = (language: string) =>
     setState((prev) => ({ ...prev, language }));
   const setBoot = (boot: string) => setState((prev) => ({ ...prev, boot }));
@@ -98,12 +122,33 @@ export default function useHomeState() {
   const setJava = (java: string) => setState((prev) => ({ ...prev, java }));
   const setConfigFormat = (configFormat: string) =>
     setState((prev) => ({ ...prev, configFormat }));
+  const setOutputLocation = (outputLocation: string) =>
+    setState((prev) => ({ ...prev, outputLocation }));
+  const saveOutputLocation = (outputLocation: string) => {
+    setOutputLocation(outputLocation);
+    window.ipc.send("output-location:set", outputLocation);
+  };
+  const pickOutputLocation = async () => {
+    const selected = await window.ipc.invoke<string | null>(
+      "output-location:pick",
+    );
+    if (selected) {
+      setOutputLocation(selected);
+    }
+  };
+  const outputLocationDisplay =
+    state.outputLocation && state.homePath
+      ? state.outputLocation.startsWith(state.homePath)
+        ? `~${state.outputLocation.slice(state.homePath.length)}`
+        : state.outputLocation
+      : state.outputLocation;
 
   return {
     state,
     actions: {
       setTheme,
       setProject,
+      setName,
       setLanguage,
       setBoot,
       setGroup,
@@ -112,6 +157,11 @@ export default function useHomeState() {
       setPackaging,
       setJava,
       setConfigFormat,
+      setOutputLocation: saveOutputLocation,
+      pickOutputLocation,
+    },
+    computed: {
+      outputLocationDisplay,
     },
   };
 }

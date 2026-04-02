@@ -16,6 +16,7 @@ export type MetadataModel = {
     language: string;
     boot: string;
     meta: {
+      name: string;
       group: string;
       artifact: string;
       packageName: string;
@@ -34,6 +35,7 @@ type RawStartMetadata = {
   javaVersion?: { default?: string; values?: Array<{ id: string; name: string }> };
   configurationFileFormat?: { default?: string; values?: Array<{ id: string; name: string }> };
   groupId?: { default?: string };
+  name?: { default?: string };
   artifactId?: { default?: string };
   packageName?: { default?: string };
 };
@@ -75,6 +77,7 @@ export class MetadataMapper {
         language: "java",
         boot: "3.4.4",
         meta: {
+          name: "demo",
           group: "com.example",
           artifact: "demo",
           packageName: "com.example.demo",
@@ -120,6 +123,7 @@ export class MetadataMapper {
         language: raw?.language?.default ?? "",
         boot: raw?.bootVersion?.default ?? "",
         meta: {
+          name: raw?.name?.default ?? "",
           group: raw?.groupId?.default ?? "",
           artifact: raw?.artifactId?.default ?? "",
           packageName: raw?.packageName?.default ?? "",
