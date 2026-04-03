@@ -102,46 +102,50 @@ export default function DependencySection({
             onToggleDependency={toggleDependency}
           />
         </div>
-        <ul className="m-0 list-none p-0">
-          {selectedDependencyItems.length === 0 && (
-            <li
-              className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
-            >
-              <span className="text-[14px] opacity-70">
-                No dependencies selected
-              </span>
-            </li>
-          )}
-          {selectedDependencyItems.map((dependency) => (
-            <li
-              key={dependency.key}
-              className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
-            >
-              <div className="flex items-start justify-between gap-3 py-1">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm leading-tight font-semibold">
-                    {dependency.text}
-                  </p>
-
-                  {dependency.description && (
-                    <p className="text-default-500 line-clamp-2 text-sm leading-tight">
-                      {dependency.description}
+        <div
+          className={`${selectedDependencyItems.length < 2 && "border-0"} no-scrollbar max-h-[45vh] overflow-scroll rounded-md border p-1`}
+        >
+          <ul className="no-scrollbar m-0 list-none p-0">
+            {selectedDependencyItems.length === 0 && (
+              <li
+                className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
+              >
+                <span className="text-[14px] opacity-70">
+                  No dependencies selected
+                </span>
+              </li>
+            )}
+            {selectedDependencyItems.map((dependency) => (
+              <li
+                key={dependency.key}
+                className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
+              >
+                <div className="flex items-center justify-between gap-3 py-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm leading-tight font-semibold">
+                      {dependency.text}
                     </p>
-                  )}
-                </div>
 
-                <Button
-                  onClick={() => toggleDependency(dependency.key)}
-                  isIconOnly
-                  variant="danger"
-                  className="shrink-0 rounded-md"
-                >
-                  <Trash2 size={18} />
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                    {dependency.description && (
+                      <p className="text-default-500 line-clamp-2 text-sm leading-tight">
+                        {dependency.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button
+                    onClick={() => toggleDependency(dependency.key)}
+                    isIconOnly
+                    variant="danger"
+                    className="shrink-0 rounded-md"
+                  >
+                    <Trash2 size={18} />
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
     </div>
   );
