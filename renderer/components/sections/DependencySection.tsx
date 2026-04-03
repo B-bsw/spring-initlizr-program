@@ -6,7 +6,7 @@ import {
   isBootVersionInRange,
   type MetadataModel,
 } from "../../models/MetadataMapper";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import DependencyModal from "../ui/DependencyModal";
 import { Folder } from "lucide-react";
 
@@ -34,7 +34,6 @@ export default function DependencySection({
   onSelectedDependenciesChange,
 }: Props) {
   const style = new ThemeStyle(theme);
-  const [isDependencyModalOpen, setIsDependencyModalOpen] = useState(false);
 
   const selectedDependencyMap = useMemo(
     () => new Map(dependencies.map((item) => [item.key, item] as const)),
@@ -91,12 +90,17 @@ export default function DependencySection({
           className={`mb-[0.8rem] flex items-center justify-between gap-4 border-b pb-[0.8rem] ${style.border}`}
         >
           <h3 className="mb-0 text-[14px] font-semibold">Dependencies</h3>
-          <Button
-            className="rounded-md bg-zinc-300 text-black dark:text-white dark:bg-zinc-700"
-            onClick={() => setIsDependencyModalOpen(true)}
-          >
-            Add dependencies
-          </Button>
+          <DependencyModal
+            trigger={
+              <Button className="rounded-md bg-zinc-300 text-black dark:text-white dark:bg-zinc-700">
+                Add dependencies
+              </Button>
+            }
+            groups={dependencyGroups}
+            boot={boot}
+            selectedDependencies={selectedDependencies}
+            onToggleDependency={toggleDependency}
+          />
         </div>
         <ul className="m-0 list-none p-0">
           {selectedDependencyItems.length === 0 && (
@@ -132,14 +136,6 @@ export default function DependencySection({
           ))}
         </ul>
       </section>
-      <DependencyModal
-        open={isDependencyModalOpen}
-        onOpenChange={setIsDependencyModalOpen}
-        groups={dependencyGroups}
-        boot={boot}
-        selectedDependencies={selectedDependencies}
-        onToggleDependency={toggleDependency}
-      />
     </div>
   );
 }

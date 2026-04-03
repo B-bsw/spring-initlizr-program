@@ -71,26 +71,96 @@ const toReadableDependencyName = (name: string | undefined, id: string) => {
   return fromId || id;
 };
 
-const toVersionParts = (version: string) => {
-  const parts = version
-    .split(/[^0-9]+/)
-    .filter(Boolean)
-    .map((part) => Number.parseInt(part, 10));
-  return parts.length > 0 ? parts : [0];
+type ParsedVersion = {
+  core: number[];
+  prerelease: string[];
+};
+
+const parseVersion = (version: string): ParsedVersion => {
+  const normalized = version.trim().replace(/^v/i, "");
+  const [withoutBuildMetadata] = normalized.split("+", 1);
+  const [coreRaw = "", prereleaseRaw] = withoutBuildMetadata.split("-", 2);
+  const core = coreRaw
+    .split(".")
+    .map((part) => Number.parseInt(part.replace(/[^0-9]/g, ""), 10))
+    .map((value) => (Number.isNaN(value) ? 0 : value));
+  return {
+    core: core.length > 0 ? core : [0],
+    prerelease: prereleaseRaw
+      ? prereleaseRaw
+          .split(".")
+          .map((part) => part.trim())
+          .filter(Boolean)
+      : [],
+  };
+};
+
+const comparePrereleasePart = (left: string, right: string) => {
+  const leftNumeric = /^[0-9]+$/.test(left);
+  const rightNumeric = /^[0-9]+$/.test(right);
+  if (leftNumeric && rightNumeric) {
+    const leftValue = Number.parseInt(left, 10);
+    const rightValue = Number.parseInt(right, 10);
+    if (leftValue < rightValue) {
+      return -1;
+    }
+    if (leftValue > rightValue) {
+      return 1;
+    }
+    return 0;
+  }
+  if (leftNumeric && !rightNumeric) {
+    return -1;
+  }
+  if (!leftNumeric && rightNumeric) {
+    return 1;
+  }
+  return left.localeCompare(right, undefined, { sensitivity: "base" });
 };
 
 const compareVersion = (left: string, right: string) => {
-  const leftParts = toVersionParts(left);
-  const rightParts = toVersionParts(right);
-  const maxLength = Math.max(leftParts.length, rightParts.length);
+  const leftParsed = parseVersion(left);
+  const rightParsed = parseVersion(right);
+  const maxLength = Math.max(leftParsed.core.length, rightParsed.core.length);
   for (let index = 0; index < maxLength; index += 1) {
-    const leftPart = leftParts[index] ?? 0;
-    const rightPart = rightParts[index] ?? 0;
+    const leftPart = leftParsed.core[index] ?? 0;
+    const rightPart = rightParsed.core[index] ?? 0;
     if (leftPart < rightPart) {
       return -1;
     }
     if (leftPart > rightPart) {
       return 1;
+    }
+  }
+
+  const leftIsRelease = leftParsed.prerelease.length === 0;
+  const rightIsRelease = rightParsed.prerelease.length === 0;
+  if (leftIsRelease && rightIsRelease) {
+    return 0;
+  }
+  if (leftIsRelease && !rightIsRelease) {
+    return 1;
+  }
+  if (!leftIsRelease && rightIsRelease) {
+    return -1;
+  }
+
+  const maxPrereleaseLength = Math.max(
+    leftParsed.prerelease.length,
+    rightParsed.prerelease.length,
+  );
+  for (let index = 0; index < maxPrereleaseLength; index += 1) {
+    const leftPart = leftParsed.prerelease[index];
+    const rightPart = rightParsed.prerelease[index];
+    if (leftPart === undefined) {
+      return -1;
+    }
+    if (rightPart === undefined) {
+      return 1;
+    }
+    const comparePart = comparePrereleasePart(leftPart, rightPart);
+    if (comparePart !== 0) {
+      return comparePart;
     }
   }
   return 0;
@@ -102,7 +172,7 @@ export const isBootVersionInRange = (bootVersion: string, versionRange?: string)
     return true;
   }
   if (!range.includes(",")) {
-    return compareVersion(bootVersion, range) === 0;
+    return compareVersion(bootVersion, range) >= 0;
   }
   const isLowerInclusive = range.startsWith("[");
   const isUpperInclusive = range.endsWith("]");

@@ -1,10 +1,5 @@
-import {
-  Checkbox,
-  Input,
-  Modal,
-  TextField,
-  useOverlayState,
-} from "@heroui/react";
+import { Input, ListBox, Modal, TextField } from "@heroui/react";
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import {
   isBootVersionInRange,
@@ -12,8 +7,7 @@ import {
 } from "../../models/MetadataMapper";
 
 type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  trigger: ReactNode;
   groups: DependencyGroup[];
   boot: string;
   selectedDependencies: string[];
@@ -23,36 +17,36 @@ type Props = {
 const formatVersionRangeLabel = (versionRange: string) => {
   const range = versionRange.trim();
   if (!range.includes(",")) {
-    return range;
+    return `>= ${range}`;
+  }
+  if (range === "[3.5.0,4.0.0-M1)") {
+    return ">= 3.5.0 and < 4.0.0";
   }
   const body = range.slice(1, -1);
   const [lowerBoundRaw = "", upperBoundRaw = ""] = body
     .split(",")
     .map((part) => part.trim());
+  const lowerOperator = range.startsWith("[") ? ">=" : ">";
+  const upperOperator = range.endsWith("]") ? "<=" : "<";
   if (lowerBoundRaw && upperBoundRaw) {
-    return `${lowerBoundRaw} <= ${upperBoundRaw}`;
+    return `${lowerOperator} ${lowerBoundRaw} and ${upperOperator} ${upperBoundRaw}`;
   }
   if (lowerBoundRaw) {
-    return `>= ${lowerBoundRaw}`;
+    return `${lowerOperator} ${lowerBoundRaw}`;
   }
   if (upperBoundRaw) {
-    return `<= ${upperBoundRaw}`;
+    return `${upperOperator} ${upperBoundRaw}`;
   }
   return range;
 };
 
 export default function DependencyModal({
-  open,
-  onOpenChange,
+  trigger,
   groups,
   boot,
   selectedDependencies,
   onToggleDependency,
 }: Props) {
-  const state = useOverlayState({
-    isOpen: open,
-    onOpenChange,
-  });
   const [search, setSearch] = useState("");
 
   const normalizedSearch = search.trim().toLowerCase();
@@ -72,12 +66,11 @@ export default function DependencyModal({
       }))
       .filter((group) => group.values.length > 0);
   }, [groups, normalizedSearch]);
-  const stickyHeaderOffsetClass = normalizedSearch ? "top-13" : "top-0";
 
   return (
-    <Modal state={state}>
-      <Modal.Trigger />
-      <Modal.Backdrop className="z-9999" isKeyboardDismissDisabled>
+    <Modal>
+      <Modal.Trigger>{trigger}</Modal.Trigger>
+      <Modal.Backdrop className="z-9999" isKeyboardDismissDisabled={false}>
         <Modal.Container
           size="cover"
           scroll="inside"
@@ -89,7 +82,7 @@ export default function DependencyModal({
               <Modal.CloseTrigger />
             </Modal.Header>
             <Modal.Body className="overflow-y-auto">
-              <div className="sticky top-0 z-20 border-b bg-white py-2 px-1 dark:bg-zinc-900">
+              <div className="sticky top-0 z-20 bg-white px-1 py-2 dark:bg-zinc-900">
                 <TextField aria-label="Search dependencies">
                   <Input
                     type="search"
@@ -97,6 +90,7 @@ export default function DependencyModal({
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search dependencies"
                     aria-label="Search dependencies"
+                    className="rounded-md border border-zinc-300 bg-white dark:bg-zinc-800 dark:border-zinc-600"
                     // className="focus:border-red-600"
                     variant="secondary"
                   />
@@ -112,61 +106,80 @@ export default function DependencyModal({
                   key={group.name}
                   className="text-black dark:text-zinc-200"
                 >
-                  <h4
-                    className={`text-md sticky z-10 border-b bg-white py-2 font-semibold dark:bg-zinc-900 ${stickyHeaderOffsetClass}`}
-                  >
-                    <span className="rounded-md border px-2 py-1">
+                  <h4 className="text-md sticky top-13 z-10 mb-1 border-y bg-white px-1 py-2 font-semibold dark:bg-zinc-900">
+                    <span className="rounded-md border bg-green-600 px-2 py-1 text-white">
                       {group.name}
                     </span>
                   </h4>
-                  <ul className="m-0 list-none p-0">
+
+                  <ListBox
+                    aria-label={`${group.name} dependencies`}
+                    selectionMode="multiple"
+                    selectedKeys={new Set(selectedDependencies)}
+                    onSelectionChange={(keys) => {
+                      if (keys === "all") {
+                        return;
+                      }
+                      const nextSelectedKeys = new Set(
+                        Array.from(keys, (key) => String(key)),
+                      );
+                      group.values.forEach((dependency) => {
+                        if (
+                          !isBootVersionInRange(boot, dependency.versionRange)
+                        ) {
+                          return;
+                        }
+                        const isSelected = selectedDependencies.includes(
+                          dependency.key,
+                        );
+                        const shouldBeSelected = nextSelectedKeys.has(
+                          dependency.key,
+                        );
+                        if (isSelected !== shouldBeSelected) {
+                          onToggleDependency(dependency.key);
+                        }
+                      });
+                    }}
+                    className="m-0 p-0"
+                  >
                     {group.values.map((dependency) => {
                       const isCompatible = isBootVersionInRange(
                         boot,
                         dependency.versionRange,
                       );
                       return (
-                        <li
+                        <ListBox.Item
                           key={dependency.key}
-                          className={`border-t py-2 first:border-t-0 ${
+                          id={dependency.key}
+                          textValue={dependency.text}
+                          isDisabled={!isCompatible}
+                          className={`rounded-none px-3 py-2 ${
                             selectedDependencies.includes(dependency.key) &&
-                            "bg-zinc-100 dark:bg-zinc-800"
+                            "bg-zinc-200 dark:bg-zinc-800"
                           }`}
                         >
-                          <Checkbox
-                            isDisabled={!isCompatible}
-                            isSelected={selectedDependencies.includes(
-                              dependency.key,
+                          <div>
+                            <strong className="mb-[0.2rem] block text-[14px]">
+                              {dependency.text}
+                            </strong>
+                            {dependency.description && (
+                              <span className="text-[13px] opacity-70">
+                                {dependency.description}
+                              </span>
                             )}
-                            onChange={() => onToggleDependency(dependency.key)}
-                            className="w-full"
-                          >
-                            <Checkbox.Control className="hidden">
-                              <Checkbox.Indicator />
-                            </Checkbox.Control>
-                            <Checkbox.Content>
-                              <strong className="mb-[0.2rem] block text-[14px]">
-                                {dependency.text}
-                              </strong>
-                              {dependency.description && (
-                                <span className="text-[13px] opacity-70">
-                                  {dependency.description}
-                                </span>
-                              )}
-                              {dependency.versionRange && !isCompatible && (
-                                <span className="mt-1 block text-[12px] text-amber-600 dark:text-amber-400">
-                                  Requires Spring Boot{" "}
-                                  {formatVersionRangeLabel(
-                                    dependency.versionRange,
-                                  )}
-                                </span>
-                              )}
-                            </Checkbox.Content>
-                          </Checkbox>
-                        </li>
+                            {dependency.versionRange && !isCompatible && (
+                              <span className="mt-1 block text-xs font-semibold text-red-600 dark:text-red-400">
+                                Requires Spring Boot{" "}
+                                {formatVersionRangeLabel(
+                                  dependency.versionRange,
+                                )}
+                              </span>
+                            )}
+                          </div>
+                        </ListBox.Item>
                       );
                     })}
-                  </ul>
+                  </ListBox>
                 </section>
               ))}
             </Modal.Body>
