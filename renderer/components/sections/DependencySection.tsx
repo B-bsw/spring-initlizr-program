@@ -8,7 +8,7 @@ import {
 } from "../../models/MetadataMapper";
 import { useMemo } from "react";
 import DependencyModal from "../ui/DependencyModal";
-import { Folder } from "lucide-react";
+import { Folder, Trash2 } from "lucide-react";
 
 type Props = {
   theme: Theme;
@@ -62,7 +62,7 @@ export default function DependencySection({
           <h3 className="mb-0 text-[14px] font-semibold">Location</h3>
         </div>
         <InputGroup
-          className="w-full rounded-sm border border-zinc-200 bg-white dark:bg-[#272A2D] dark:border-[#4B5053]"
+          className="w-full rounded-sm border border-zinc-200 bg-white dark:border-[#4B5053] dark:bg-[#272A2D]"
           variant="secondary"
         >
           <InputGroup.Input
@@ -92,7 +92,7 @@ export default function DependencySection({
           <h3 className="mb-0 text-[14px] font-semibold">Dependencies</h3>
           <DependencyModal
             trigger={
-              <Button className="rounded-md bg-zinc-300 text-black dark:text-white dark:bg-zinc-700">
+              <Button className="rounded-md bg-zinc-300 text-black dark:bg-zinc-700 dark:text-white">
                 Add dependencies
               </Button>
             }
@@ -117,21 +117,28 @@ export default function DependencySection({
               key={dependency.key}
               className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
             >
-              <div className="mb-[0.2rem] flex items-start justify-between gap-2">
-                <strong className="block text-[14px]">{dependency.text}</strong>
-                <button
-                  type="button"
-                  className={`${buttonBase} px-2 py-1 text-[12px] ${style.outlineButton}`}
+              <div className="flex items-start justify-between gap-3 py-1">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm leading-tight font-semibold">
+                    {dependency.text}
+                  </p>
+
+                  {dependency.description && (
+                    <p className="text-default-500 line-clamp-2 text-sm leading-tight">
+                      {dependency.description}
+                    </p>
+                  )}
+                </div>
+
+                <Button
                   onClick={() => toggleDependency(dependency.key)}
+                  isIconOnly
+                  variant="danger"
+                  className="shrink-0 rounded-md"
                 >
-                  Remove
-                </button>
+                  <Trash2 size={18} />
+                </Button>
               </div>
-              {dependency.description && (
-                <span className="text-[14px] opacity-70">
-                  {dependency.description}
-                </span>
-              )}
             </li>
           ))}
         </ul>
