@@ -10,17 +10,26 @@ import FooterSection from "../../components/sections/FooterSection";
 import { Menu, Moon, Sun } from "lucide-react";
 import { buttonBase } from "../../utils/constants";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
+import { Toast, toast } from "@heroui/react";
+import { useTheme } from "next-themes";
 
 export default function HomePage() {
   const { state, actions, computed } = useHomeState();
   const style = useMemo(() => new ThemeStyle(state.theme), [state.theme]);
   const [generating, setGenerating] = useState(false);
+  const { setTheme } = useTheme();
 
   const handleGenerate = async () => {
     try {
       setGenerating(true);
       if (!state.outputLocation) {
-        throw new Error("Please select output location");
+        // throw new Error("Please select output location");
+        toast.warning("Please select output location.");
+        return;
+      }
+      if (!state.name) {
+        toast.warning("Please include your Project name.");
+        return;
       }
       const response = await fetch("/api/starter", { method: "GET" });
       if (!response.ok) {
@@ -32,15 +41,12 @@ export default function HomePage() {
       const result = await window.ipc.invoke<
         { path: string },
         { zipData: number[]; outputLocation: string; projectName: string }
-      >(
-        "project:generate",
-        {
-          zipData,
-          outputLocation: state.outputLocation,
-          projectName: state.name,
-        },
-      );
-      console.log("Project generated at:", result.path);
+      >("project:generate", {
+        zipData,
+        outputLocation: state.outputLocation,
+        projectName: state.name,
+      });
+      toast.success("generate project success");
     } finally {
       setGenerating(false);
     }
@@ -50,8 +56,9 @@ export default function HomePage() {
     <main
       className={`h-screen overflow-hidden md:grid md:grid-cols-[72px_1fr_72px] ${style.bg} ${style.text}`}
     >
+      <Toast.Provider placement="bottom end" className="z-100 **:rounded-md" />
       <aside
-        className={`${style.bg} sticky top-0 z-999 hidden h-screen md:block`}
+        className={`${style.bg} sticky top-0 z-99 hidden h-screen md:block`}
       >
         <div
           className={`flex h-full flex-col items-center justify-between border-r px-2.5 py-3.5 ${style.border}`}
@@ -130,7 +137,7 @@ export default function HomePage() {
         />
       </section>
       <aside
-        className={`sticky top-0 z-999 hidden h-screen md:block ${style.bg}`}
+        className={`sticky top-0 z-99 hidden h-screen md:block ${style.bg}`}
       >
         <div
           className={`flex h-full flex-col items-center justify-between border-l px-2.5 py-3.5 ${style.border}`}
@@ -143,7 +150,10 @@ export default function HomePage() {
                   ? "border-[#6db33f] bg-[#6db33f] text-white"
                   : style.outlineButton
               }flex items-center justify-center`}
-              onClick={() => actions.setTheme("light")}
+              onClick={() => {
+                setTheme("light");
+                actions.setTheme("light");
+              }}
               aria-label="Enable  light mode"
             >
               <div>
@@ -157,7 +167,10 @@ export default function HomePage() {
                   ? "border-[#6db33f] bg-[#6db33f] text-[#111111]"
                   : style.outlineButton
               }flex items-center justify-center`}
-              onClick={() => actions.setTheme("dark")}
+              onClick={() => {
+                setTheme("dark");
+                actions.setTheme("dark");
+              }}
               aria-label="Enable dark mode"
             >
               <Moon size={14} />

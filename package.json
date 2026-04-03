@@ -12,6 +12,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@heroui/react": "^3.0.1",
+    "@heroui/styles": "^3.0.1",
     "@tabler/icons-react": "^3.41.1",
     "electron-serve": "^3.0.0",
     "electron-store": "^11.0.2",

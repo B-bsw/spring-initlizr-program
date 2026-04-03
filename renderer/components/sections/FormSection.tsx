@@ -1,4 +1,6 @@
-import ChoiceGroup from "../ui/ChoiceGroup";
+import { ListBox, Select } from "@heroui/react";
+import ChoiceTabs from "../ui/ChoiceTabs";
+import AppInput from "../ui/AppInput";
 import { ThemeStyle } from "../../models/ThemeStyle";
 import type { Theme } from "../../types/types";
 import type { MetadataModel } from "../../models/MetadataMapper";
@@ -34,42 +36,60 @@ export default function FormSection(props: Props) {
     <div className="md:flex-1 md:pr-20">
       <section className="mb-6">
         <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project name</h3>
-        <input
-          className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
+        <AppInput
+          className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] ${style.inputTone}`}
           value={props.name}
-          onChange={(e) => props.onName(e.target.value.trim())}
+          onChange={(value) => props.onName(value.trim())}
+          ariaLabel="Project name"
         />
       </section>
       <div className="flex w-full justify-between gap-5">
         <section className="mb-6">
           <h3 className="mb-[0.7rem] text-[14px] font-semibold">Project</h3>
-          <ChoiceGroup
+          <ChoiceTabs
             options={props.metadata.lists.project}
             selected={props.project}
             onChange={props.onProject}
-            dark={style.isDark}
+            ariaLabel="Project type"
           />
         </section>
 
         <section className="mb-6">
           <h3 className="mb-[0.7rem] text-[14px] font-semibold">Language</h3>
-          <ChoiceGroup
+          <ChoiceTabs
             options={props.metadata.lists.language}
             selected={props.language}
             onChange={props.onLanguage}
-            dark={style.isDark}
+            ariaLabel="Programming language"
           />
         </section>
       </div>
 
       <section className="mb-6">
         <h3 className="mb-[0.7rem] text-[14px] font-semibold">Spring Boot</h3>
-        <ChoiceGroup
-          options={props.metadata.lists.boot}
-          selected={props.boot}
-          onChange={props.onBoot}
-          dark={style.isDark}
-        />
+        <Select
+          variant="secondary"
+          selectedKey={props.boot}
+          onSelectionChange={(key) => props.onBoot(String(key))}
+          className="w-full"
+          aria-label="Spring Boot version"
+        >
+          <Select.Trigger
+            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] ${style.inputTone}`}
+          >
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover className="rounded-md">
+            <ListBox>
+              {props.metadata.lists.boot.map((item) => (
+                <ListBox.Item key={item.key} id={item.key} className="rounded-md">
+                  {item.text}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       </section>
 
       <section className="mb-6">
@@ -78,53 +98,56 @@ export default function FormSection(props: Props) {
         </h3>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Group</span>
-          <input
-            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
+          <AppInput
+            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] ${style.inputTone}`}
             value={props.group}
-            onChange={(e) => props.onGroup(e.target.value)}
+            onChange={props.onGroup}
+            ariaLabel="Group"
           />
         </label>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Artifact</span>
-          <input
-            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
+          <AppInput
+            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] ${style.inputTone}`}
             value={props.artifact}
-            onChange={(e) => props.onArtifact(e.target.value)}
+            onChange={props.onArtifact}
+            ariaLabel="Artifact"
           />
         </label>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Package name</span>
-          <input
-            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] outline-none ${style.inputTone}`}
+          <AppInput
+            className={`w-full rounded border px-[0.58rem] py-[0.48rem] text-[14px] ${style.inputTone}`}
             value={props.packageName}
-            onChange={(e) => props.onPackageName(e.target.value)}
+            onChange={props.onPackageName}
+            ariaLabel="Package name"
           />
         </label>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Packaging</span>
-          <ChoiceGroup
+          <ChoiceTabs
             options={props.metadata.lists.meta.packaging}
             selected={props.packaging}
             onChange={props.onPackaging}
-            dark={style.isDark}
+            ariaLabel="Packaging"
           />
         </label>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Java</span>
-          <ChoiceGroup
+          <ChoiceTabs
             options={props.metadata.lists.meta.java}
             selected={props.java}
             onChange={props.onJava}
-            dark={style.isDark}
+            ariaLabel="Java version"
           />
         </label>
         <label className="mb-[0.65rem] grid grid-cols-1 items-center gap-[0.35rem] md:grid-cols-[120px_1fr] md:gap-[0.8rem]">
           <span className="text-[14px]">Configuration</span>
-          <ChoiceGroup
+          <ChoiceTabs
             options={props.metadata.lists.meta.configurationFileFormat}
             selected={props.configFormat}
             onChange={props.onConfigFormat}
-            dark={style.isDark}
+            ariaLabel="Configuration file format"
           />
         </label>
       </section>

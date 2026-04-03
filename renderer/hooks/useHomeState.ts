@@ -26,6 +26,7 @@ export type HomeState = {
 };
 
 export default function useHomeState() {
+  const ipc = typeof window !== "undefined" ? window.ipc : undefined;
   const [state, setState] = useState<HomeState>({
     theme: "light",
     metadata: null,
@@ -51,7 +52,6 @@ export default function useHomeState() {
     const load = async () => {
       try {
         const metadata = await MetadataService.getMetadata();
-        console.log(metadata)
         if (!mounted) return;
         setState((prev) => ({
           ...prev,
@@ -88,9 +88,14 @@ export default function useHomeState() {
   useEffect(() => {
     let mounted = true;
     const loadOutputLocation = async () => {
+      if (!ipc) {
+        if (!mounted) return;
+        setState((prev) => ({ ...prev, outputLocation: "", homePath: "" }));
+        return;
+      }
       const [value, homePath] = await Promise.all([
-        window.ipc.invoke<string>("output-location:get"),
-        window.ipc.invoke<string>("output-location:home"),
+        ipc.invoke<string>("output-location:get"),
+        ipc.invoke<string>("output-location:home"),
       ]);
       if (!mounted) return;
       setState((prev) => ({ ...prev, outputLocation: value, homePath }));
@@ -99,7 +104,7 @@ export default function useHomeState() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [ipc]);
 
   useEffect(() => {
     setState((prev) => ({
@@ -131,12 +136,13 @@ export default function useHomeState() {
     setState((prev) => ({ ...prev, selectedDependencies }));
   const saveOutputLocation = (outputLocation: string) => {
     setOutputLocation(outputLocation);
-    window.ipc.send("output-location:set", outputLocation);
+    ipc?.send("output-location:set", outputLocation);
   };
   const pickOutputLocation = async () => {
-    const selected = await window.ipc.invoke<string | null>(
-      "output-location:pick",
-    );
+    if (!ipc) {
+      return;
+    }
+    const selected = await ipc.invoke<string | null>("output-location:pick");
     if (selected) {
       setOutputLocation(selected);
     }
