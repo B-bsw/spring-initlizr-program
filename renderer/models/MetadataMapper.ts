@@ -38,7 +38,7 @@ type RawStartMetadata = {
   dependencies?: {
     values?: Array<{
       name?: string;
-      values?: Array<{ id: string; name: string; description?: string }>;
+      values?: Array<{ id?: string; name?: string; description?: string }>;
     }>;
   };
   packaging?: { default?: string; values?: Array<{ id: string; name: string }> };
@@ -48,6 +48,19 @@ type RawStartMetadata = {
   name?: { default?: string };
   artifactId?: { default?: string };
   packageName?: { default?: string };
+};
+
+const toReadableDependencyName = (name: string | undefined, id: string) => {
+  const trimmed = name?.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  const fromId = id
+    .split(/[-_.]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+  return fromId || id;
 };
 
 export class MetadataMapper {
@@ -140,14 +153,25 @@ export class MetadataMapper {
 
   static toViewModel(raw: RawStartMetadata): MetadataModel {
     const dependencyGroups: DependencyGroup[] = (raw?.dependencies?.values ?? [])
-      .map((group) => ({
-        name: group.name ?? "Dependencies",
-        values: (group.values ?? []).map((item) => ({
-          key: item.id,
-          text: item.name,
-          description: item.description ?? "",
-        })),
-      }))
+      .map((group) => {
+        const values = (group.values ?? []).flatMap((item) => {
+          const key = item.id?.trim();
+          if (!key) {
+            return [];
+          }
+          return [
+            {
+              key,
+              text: toReadableDependencyName(item.name, key),
+              description: item.description?.trim() ?? "",
+            },
+          ];
+        });
+        return {
+          name: group.name?.trim() || "Dependencies",
+          values,
+        };
+      })
       .filter((group) => group.values.length > 0);
 
     const model = {

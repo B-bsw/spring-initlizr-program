@@ -46,6 +46,7 @@ export default function DependencyModal({
       }))
       .filter((group) => group.values.length > 0);
   }, [groups, normalizedSearch]);
+  const stickyHeaderOffsetClass = normalizedSearch ? "top-13" : "top-0";
 
   return (
     <Modal state={state}>
@@ -81,7 +82,10 @@ export default function DependencyModal({
                 </p>
               )}
               {filteredGroups.map((group) => (
-                <section key={group.name} className="text-black dark:text-zinc-200">
+                <section
+                  key={group.name}
+                  className="text-black dark:text-zinc-200"
+                >
                   <h4 className="sticky top-13 z-10 border-b bg-white py-2 text-[14px] font-semibold dark:bg-zinc-900">
                     {group.name}
                   </h4>
