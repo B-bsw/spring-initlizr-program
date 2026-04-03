@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { MetadataService } from "../services/MetadataService";
-import type { MetadataModel } from "../models/MetadataMapper";
+import {
+  isBootVersionInRange,
+  type MetadataModel,
+} from "../models/MetadataMapper";
 import type { Theme } from "../types/types";
 
 export type HomeState = {
@@ -119,7 +122,23 @@ export default function useHomeState() {
   const setName = (name: string) => setState((prev) => ({ ...prev, name }));
   const setLanguage = (language: string) =>
     setState((prev) => ({ ...prev, language }));
-  const setBoot = (boot: string) => setState((prev) => ({ ...prev, boot }));
+  const setBoot = (boot: string) =>
+    setState((prev) => {
+      if (!prev.metadata) {
+        return { ...prev, boot };
+      }
+      const allowedDependencyKeys = new Set(
+        prev.metadata.lists.dependencies
+          .filter((dependency) =>
+            isBootVersionInRange(boot, dependency.versionRange),
+          )
+          .map((dependency) => dependency.key),
+      );
+      const selectedDependencies = prev.selectedDependencies.filter((key) =>
+        allowedDependencyKeys.has(key),
+      );
+      return { ...prev, boot, selectedDependencies };
+    });
   const setGroup = (group: string) => setState((prev) => ({ ...prev, group }));
   const setArtifact = (artifact: string) =>
     setState((prev) => ({ ...prev, artifact }));
@@ -133,7 +152,27 @@ export default function useHomeState() {
   const setOutputLocation = (outputLocation: string) =>
     setState((prev) => ({ ...prev, outputLocation }));
   const setSelectedDependencies = (selectedDependencies: string[]) =>
-    setState((prev) => ({ ...prev, selectedDependencies }));
+    setState((prev) => {
+      if (!prev.metadata) {
+        return { ...prev, selectedDependencies };
+      }
+      const dependencyMap = new Map(
+        prev.metadata.lists.dependencies.map((dependency) => [
+          dependency.key,
+          dependency,
+        ]),
+      );
+      const compatibleSelectedDependencies = selectedDependencies.filter(
+        (key) => {
+          const dependency = dependencyMap.get(key);
+          return (
+            dependency &&
+            isBootVersionInRange(prev.boot, dependency.versionRange)
+          );
+        },
+      );
+      return { ...prev, selectedDependencies: compatibleSelectedDependencies };
+    });
   const saveOutputLocation = (outputLocation: string) => {
     setOutputLocation(outputLocation);
     ipc?.send("output-location:set", outputLocation);

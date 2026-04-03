@@ -38,7 +38,7 @@ export default function HomePage() {
 
       const arrayBuffer = await response.arrayBuffer();
       const zipData = Array.from(new Uint8Array(arrayBuffer));
-      const result = await window.ipc.invoke<
+      await window.ipc.invoke<
         { path: string },
         { zipData: number[]; outputLocation: string; projectName: string }
       >("project:generate", {
@@ -121,6 +121,7 @@ export default function HomePage() {
               theme={state.theme}
               dependencies={state.metadata.lists.dependencies}
               dependencyGroups={state.metadata.lists.dependencyGroups}
+              boot={state.boot}
               selectedDependencies={state.selectedDependencies}
               outputLocation={state.outputLocation}
               outputLocationDisplay={computed.outputLocationDisplay}

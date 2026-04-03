@@ -2,7 +2,10 @@ import { Button, InputGroup } from "@heroui/react";
 import type { Theme } from "../../types/types";
 import { buttonBase } from "../../utils/constants";
 import { ThemeStyle } from "../../models/ThemeStyle";
-import type { MetadataModel } from "../../models/MetadataMapper";
+import {
+  isBootVersionInRange,
+  type MetadataModel,
+} from "../../models/MetadataMapper";
 import { useMemo, useState } from "react";
 import DependencyModal from "../ui/DependencyModal";
 import { Folder } from "lucide-react";
@@ -11,6 +14,7 @@ type Props = {
   theme: Theme;
   dependencies: MetadataModel["lists"]["dependencies"];
   dependencyGroups: MetadataModel["lists"]["dependencyGroups"];
+  boot: string;
   selectedDependencies: string[];
   outputLocation: string;
   outputLocationDisplay: string;
@@ -22,6 +26,7 @@ export default function DependencySection({
   theme,
   dependencies,
   dependencyGroups,
+  boot,
   selectedDependencies,
   outputLocation,
   outputLocationDisplay,
@@ -37,7 +42,12 @@ export default function DependencySection({
   );
   const selectedDependencyItems = selectedDependencies
     .map((key) => selectedDependencyMap.get(key))
-    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+    .filter((item): item is NonNullable<typeof item> => {
+      if (!item) {
+        return false;
+      }
+      return isBootVersionInRange(boot, item.versionRange);
+    });
 
   const toggleDependency = (key: string) => {
     const next = selectedDependencies.includes(key)
@@ -126,6 +136,7 @@ export default function DependencySection({
         open={isDependencyModalOpen}
         onOpenChange={setIsDependencyModalOpen}
         groups={dependencyGroups}
+        boot={boot}
         selectedDependencies={selectedDependencies}
         onToggleDependency={toggleDependency}
       />

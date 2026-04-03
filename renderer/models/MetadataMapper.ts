@@ -1,5 +1,8 @@
 export type Option = { key: string; text: string };
-export type DependencyOption = Option & { description: string };
+export type DependencyOption = Option & {
+  description: string;
+  versionRange?: string;
+};
 export type DependencyGroup = { name: string; values: DependencyOption[] };
 
 export type MetadataModel = {
@@ -38,7 +41,12 @@ type RawStartMetadata = {
   dependencies?: {
     values?: Array<{
       name?: string;
-      values?: Array<{ id?: string; name?: string; description?: string }>;
+      values?: Array<{
+        id?: string;
+        name?: string;
+        description?: string;
+        versionRange?: string;
+      }>;
     }>;
   };
   packaging?: { default?: string; values?: Array<{ id: string; name: string }> };
@@ -61,6 +69,69 @@ const toReadableDependencyName = (name: string | undefined, id: string) => {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
   return fromId || id;
+};
+
+const toVersionParts = (version: string) => {
+  const parts = version
+    .split(/[^0-9]+/)
+    .filter(Boolean)
+    .map((part) => Number.parseInt(part, 10));
+  return parts.length > 0 ? parts : [0];
+};
+
+const compareVersion = (left: string, right: string) => {
+  const leftParts = toVersionParts(left);
+  const rightParts = toVersionParts(right);
+  const maxLength = Math.max(leftParts.length, rightParts.length);
+  for (let index = 0; index < maxLength; index += 1) {
+    const leftPart = leftParts[index] ?? 0;
+    const rightPart = rightParts[index] ?? 0;
+    if (leftPart < rightPart) {
+      return -1;
+    }
+    if (leftPart > rightPart) {
+      return 1;
+    }
+  }
+  return 0;
+};
+
+export const isBootVersionInRange = (bootVersion: string, versionRange?: string) => {
+  const range = versionRange?.trim();
+  if (!range) {
+    return true;
+  }
+  if (!range.includes(",")) {
+    return compareVersion(bootVersion, range) === 0;
+  }
+  const isLowerInclusive = range.startsWith("[");
+  const isUpperInclusive = range.endsWith("]");
+  if (!["[", "("].includes(range.charAt(0)) || !["]", ")"].includes(range.charAt(range.length - 1))) {
+    return true;
+  }
+  const body = range.slice(1, -1);
+  const bounds = body.split(",").map((part) => part.trim());
+  if (bounds.length < 2) {
+    return true;
+  }
+  const [lowerBoundRaw = "", upperBoundRaw = ""] = bounds;
+  const lowerBound = lowerBoundRaw.trim();
+  const upperBound = upperBoundRaw.trim();
+  if (lowerBound) {
+    const compareLower = compareVersion(bootVersion, lowerBound);
+    // [A,...) => A <= X, (A,...) => A < X
+    if (compareLower < 0 || (compareLower === 0 && !isLowerInclusive)) {
+      return false;
+    }
+  }
+  if (upperBound) {
+    const compareUpper = compareVersion(bootVersion, upperBound);
+    // (...,B] => X <= B, (...,B) => X < B
+    if (compareUpper > 0 || (compareUpper === 0 && !isUpperInclusive)) {
+      return false;
+    }
+  }
+  return true;
 };
 
 export class MetadataMapper {
@@ -164,6 +235,7 @@ export class MetadataMapper {
               key,
               text: toReadableDependencyName(item.name, key),
               description: item.description?.trim() ?? "",
+              versionRange: item.versionRange?.trim() || undefined,
             },
           ];
         });

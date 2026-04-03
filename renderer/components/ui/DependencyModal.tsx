@@ -6,20 +6,46 @@ import {
   useOverlayState,
 } from "@heroui/react";
 import { useMemo, useState } from "react";
-import type { DependencyGroup } from "../../models/MetadataMapper";
+import {
+  isBootVersionInRange,
+  type DependencyGroup,
+} from "../../models/MetadataMapper";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groups: DependencyGroup[];
+  boot: string;
   selectedDependencies: string[];
   onToggleDependency: (key: string) => void;
+};
+
+const formatVersionRangeLabel = (versionRange: string) => {
+  const range = versionRange.trim();
+  if (!range.includes(",")) {
+    return range;
+  }
+  const body = range.slice(1, -1);
+  const [lowerBoundRaw = "", upperBoundRaw = ""] = body
+    .split(",")
+    .map((part) => part.trim());
+  if (lowerBoundRaw && upperBoundRaw) {
+    return `${lowerBoundRaw} <= ${upperBoundRaw}`;
+  }
+  if (lowerBoundRaw) {
+    return `>= ${lowerBoundRaw}`;
+  }
+  if (upperBoundRaw) {
+    return `<= ${upperBoundRaw}`;
+  }
+  return range;
 };
 
 export default function DependencyModal({
   open,
   onOpenChange,
   groups,
+  boot,
   selectedDependencies,
   onToggleDependency,
 }: Props) {
@@ -63,7 +89,7 @@ export default function DependencyModal({
               <Modal.CloseTrigger />
             </Modal.Header>
             <Modal.Body className="overflow-y-auto">
-              <div className="sticky top-0 z-20 border-b bg-white py-2 dark:bg-zinc-900">
+              <div className="sticky top-0 z-20 border-b bg-white py-2 px-1 dark:bg-zinc-900">
                 <TextField aria-label="Search dependencies">
                   <Input
                     type="search"
@@ -86,41 +112,60 @@ export default function DependencyModal({
                   key={group.name}
                   className="text-black dark:text-zinc-200"
                 >
-                  <h4 className="sticky top-13 z-10 border-b bg-white py-2 text-[14px] font-semibold dark:bg-zinc-900">
-                    {group.name}
+                  <h4
+                    className={`text-md sticky z-10 border-b bg-white py-2 font-semibold dark:bg-zinc-900 ${stickyHeaderOffsetClass}`}
+                  >
+                    <span className="rounded-md border px-2 py-1">
+                      {group.name}
+                    </span>
                   </h4>
                   <ul className="m-0 list-none p-0">
-                    {group.values.map((dependency) => (
-                      <li
-                        key={dependency.key}
-                        className={`border-t py-2 first:border-t-0 ${
-                          selectedDependencies.includes(dependency.key) &&
-                          "bg-zinc-100 dark:bg-zinc-800"
-                        }`}
-                      >
-                        <Checkbox
-                          isSelected={selectedDependencies.includes(
-                            dependency.key,
-                          )}
-                          onChange={() => onToggleDependency(dependency.key)}
-                          className="w-full"
+                    {group.values.map((dependency) => {
+                      const isCompatible = isBootVersionInRange(
+                        boot,
+                        dependency.versionRange,
+                      );
+                      return (
+                        <li
+                          key={dependency.key}
+                          className={`border-t py-2 first:border-t-0 ${
+                            selectedDependencies.includes(dependency.key) &&
+                            "bg-zinc-100 dark:bg-zinc-800"
+                          }`}
                         >
-                          <Checkbox.Control className="hidden">
-                            <Checkbox.Indicator />
-                          </Checkbox.Control>
-                          <Checkbox.Content>
-                            <strong className="mb-[0.2rem] block text-[14px]">
-                              {dependency.text}
-                            </strong>
-                            {dependency.description && (
-                              <span className="text-[13px] opacity-70">
-                                {dependency.description}
-                              </span>
+                          <Checkbox
+                            isDisabled={!isCompatible}
+                            isSelected={selectedDependencies.includes(
+                              dependency.key,
                             )}
-                          </Checkbox.Content>
-                        </Checkbox>
-                      </li>
-                    ))}
+                            onChange={() => onToggleDependency(dependency.key)}
+                            className="w-full"
+                          >
+                            <Checkbox.Control className="hidden">
+                              <Checkbox.Indicator />
+                            </Checkbox.Control>
+                            <Checkbox.Content>
+                              <strong className="mb-[0.2rem] block text-[14px]">
+                                {dependency.text}
+                              </strong>
+                              {dependency.description && (
+                                <span className="text-[13px] opacity-70">
+                                  {dependency.description}
+                                </span>
+                              )}
+                              {dependency.versionRange && !isCompatible && (
+                                <span className="mt-1 block text-[12px] text-amber-600 dark:text-amber-400">
+                                  Requires Spring Boot{" "}
+                                  {formatVersionRangeLabel(
+                                    dependency.versionRange,
+                                  )}
+                                </span>
+                              )}
+                            </Checkbox.Content>
+                          </Checkbox>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </section>
               ))}
