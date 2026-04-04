@@ -7,7 +7,7 @@ import {
 } from "../../models/MetadataMapper";
 import { useMemo } from "react";
 import DependencyModal from "../ui/DependencyModal";
-import { Copy, Folder, Trash2 } from "lucide-react";
+import { Folder, Trash2 } from "lucide-react";
 
 type Props = {
   theme: Theme;
