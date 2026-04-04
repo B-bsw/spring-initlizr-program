@@ -47,7 +47,7 @@ export default function HomePage() {
   const { setTheme } = useTheme();
 
   const fetchStarterZip = async () => {
-    const response = await fetch("/api/starter", { method: "GET" });
+    const response = await fetch("https://api-springboot-initializr.vercel.app/api/starter", { method: "GET" });
     if (!response.ok) {
       throw new Error(`Generate failed (${response.status})`);
     }

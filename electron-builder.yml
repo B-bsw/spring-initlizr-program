@@ -1,12 +1,22 @@
 appId: com.example.todolist
 productName: Spring-Initializr
 copyright: Copyright © 2026 Sorawit thassadorn
+
 directories:
   output: dist
   buildResources: resources
+
 files:
-  - from: .
-    filter:
-      - package.json
-      - app
+  - "app/**/*"
+  - "main/**/*"
+  - "renderer/**/*"
+  - "node_modules/**/*"
+  - "package.json"
+
+win:
+  target: nsis
+
+mac:
+  target: dmg
+
 publish: null

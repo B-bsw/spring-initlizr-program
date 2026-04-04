@@ -8,7 +8,7 @@
   "main": "app/main.js",
   "scripts": {
     "dev": "nextron",
-    "build": "nextron build --mac --win",
+    "build": "nextron build",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
