@@ -12,12 +12,103 @@ import { buttonBase } from "../../utils/constants";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import { Toast, toast } from "@heroui/react";
 import { useTheme } from "next-themes";
+import ZipStructureModal from "../../components/ui/ZipStructureModal";
+
+const isPreviewableFile = (filePath: string) => {
+  const fileName = filePath.split("/").pop() ?? "";
+  if (fileName.toLowerCase().startsWith(".git")) {
+    return true;
+  }
+  if (
+    fileName.toLowerCase().endsWith(".bat") ||
+    fileName.toLowerCase().endsWith(".jar")
+  ) {
+    return false;
+  }
+  const extensionIndex = fileName.lastIndexOf(".");
+  return extensionIndex > 0 && extensionIndex < fileName.length - 1;
+};
 
 export default function HomePage() {
   const { state, actions, computed } = useHomeState();
   const style = useMemo(() => new ThemeStyle(state.theme), [state.theme]);
   const [generating, setGenerating] = useState(false);
+  const [exploring, setExploring] = useState(false);
+  const [zipData, setZipData] = useState<number[] | null>(null);
+  const [zipEntries, setZipEntries] = useState<string[]>([]);
+  const [zipFileContents, setZipFileContents] = useState<Record<string, string>>(
+    {},
+  );
+  const [selectedZipFile, setSelectedZipFile] = useState<string>("");
+  const [loadingZipFilePath, setLoadingZipFilePath] = useState<string | null>(
+    null,
+  );
+  const [showZipModal, setShowZipModal] = useState(false);
   const { setTheme } = useTheme();
+
+  const fetchStarterZip = async () => {
+    const response = await fetch("/api/starter", { method: "GET" });
+    if (!response.ok) {
+      throw new Error(`Generate failed (${response.status})`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const bytes = Array.from(new Uint8Array(arrayBuffer));
+    return bytes;
+  };
+
+  const handleExplore = async () => {
+    try {
+      setExploring(true);
+      const bytes = await fetchStarterZip();
+      const entries = await window.ipc.invoke<string[], { zipData: number[] }>(
+        "project:zip-entries",
+        {
+          zipData: bytes,
+        },
+      );
+      const firstFile =
+        entries.find(
+          (entry) => !entry.endsWith("/") && isPreviewableFile(entry),
+        ) ?? "";
+      let firstFileContent = "";
+      if (firstFile) {
+        setLoadingZipFilePath(firstFile);
+        firstFileContent = await window.ipc.invoke<
+          string,
+          { zipData: number[]; filePath: string }
+        >("project:zip-file-content", { zipData: bytes, filePath: firstFile });
+      }
+      setZipData(bytes);
+      setZipEntries(entries);
+      setSelectedZipFile(firstFile);
+      setZipFileContents(firstFile ? { [firstFile]: firstFileContent } : {});
+      setShowZipModal(true);
+      // toast.success("Explore preview is ready.");
+    } finally {
+      setLoadingZipFilePath(null);
+      setExploring(false);
+    }
+  };
+
+  const handleSelectZipFile = async (filePath: string) => {
+    if (!zipData) {
+      return;
+    }
+    setSelectedZipFile(filePath);
+    if (zipFileContents[filePath] !== undefined) {
+      return;
+    }
+    try {
+      setLoadingZipFilePath(filePath);
+      const content = await window.ipc.invoke<
+        string,
+        { zipData: number[]; filePath: string }
+      >("project:zip-file-content", { zipData, filePath });
+      setZipFileContents((prev) => ({ ...prev, [filePath]: content }));
+    } finally {
+      setLoadingZipFilePath(null);
+    }
+  };
 
   const handleGenerate = async () => {
     try {
@@ -31,13 +122,10 @@ export default function HomePage() {
         toast.warning("Please include your Project name.");
         return;
       }
-      const response = await fetch("/api/starter", { method: "GET" });
-      if (!response.ok) {
-        throw new Error(`Generate failed (${response.status})`);
+      if (!zipData) {
+        toast.warning("Please explore and preview ZIP structure first.");
+        return;
       }
-
-      const arrayBuffer = await response.arrayBuffer();
-      const zipData = Array.from(new Uint8Array(arrayBuffer));
       await window.ipc.invoke<
         { path: string },
         { zipData: number[]; outputLocation: string; projectName: string }
@@ -57,6 +145,15 @@ export default function HomePage() {
       className={`h-screen overflow-hidden md:grid md:grid-cols-[72px_1fr_72px] ${style.bg} ${style.text}`}
     >
       <Toast.Provider placement="bottom end" className="z-100 **:rounded-md" />
+      <ZipStructureModal
+        open={showZipModal}
+        entries={zipEntries}
+        selectedFile={selectedZipFile}
+        loadingFilePath={loadingZipFilePath}
+        fileContents={zipFileContents}
+        onSelectFile={handleSelectZipFile}
+        onClose={() => setShowZipModal(false)}
+      />
       <aside
         className={`${style.bg} sticky top-0 z-99 hidden h-screen md:block`}
       >
@@ -134,7 +231,9 @@ export default function HomePage() {
           className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full"
           theme={state.theme}
           generating={generating}
+          exploring={exploring}
           onGenerate={handleGenerate}
+          onExplore={handleExplore}
         />
       </section>
       <aside

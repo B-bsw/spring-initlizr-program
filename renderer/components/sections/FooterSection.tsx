@@ -6,18 +6,22 @@ export default function FooterSection({
   theme,
   className,
   generating = false,
+  exploring = false,
   onGenerate,
+  onExplore,
 }: {
   theme: Theme;
   className: string;
   generating?: boolean;
+  exploring?: boolean;
   onGenerate: () => void;
+  onExplore: () => void;
 }) {
   const style = new ThemeStyle(theme);
   return (
     <div className={`${className}`}>
       <div
-        className={`py-3 flex items-center justify-center ${style.actionBg}`}
+        className={`flex items-center justify-center py-3 ${style.actionBg}`}
       >
         <button
           type="button"
@@ -30,8 +34,10 @@ export default function FooterSection({
         <button
           type="button"
           className={`${buttonBase} mr-2 ${style.outlineButton}`}
+          onClick={onExplore}
+          disabled={exploring}
         >
-          Explore
+          {exploring ? "Exploring..." : "Explore"}
         </button>
         <button
           type="button"

@@ -1,6 +1,5 @@
 import { Button, InputGroup } from "@heroui/react";
 import type { Theme } from "../../types/types";
-import { buttonBase } from "../../utils/constants";
 import { ThemeStyle } from "../../models/ThemeStyle";
 import {
   isBootVersionInRange,

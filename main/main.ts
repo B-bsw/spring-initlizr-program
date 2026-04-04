@@ -76,6 +76,114 @@ const normalizeFolderName = (name: string) => {
   return normalized.length > 0 ? normalized : 'project'
 }
 
+const listRelativePaths = async (rootDir: string) => {
+  const walk = async (currentDir: string): Promise<string[]> => {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true })
+    const results: string[] = []
+    for (const entry of entries) {
+      const absolutePath = path.join(currentDir, entry.name)
+      const relativePath = path
+        .relative(rootDir, absolutePath)
+        .split(path.sep)
+        .join('/')
+      if (entry.isDirectory()) {
+        results.push(`${relativePath}/`)
+        const nested = await walk(absolutePath)
+        results.push(...nested)
+      } else {
+        results.push(relativePath)
+      }
+    }
+    return results
+  }
+  const listed = await walk(rootDir)
+  return listed.sort((a, b) => a.localeCompare(b))
+}
+
+ipcMain.handle(
+  'project:zip-entries',
+  async (_event, payload: { zipData: number[] }) => {
+    if (!payload || !Array.isArray(payload.zipData)) {
+      throw new Error('Invalid zip payload')
+    }
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'spring-zip-tree-'))
+    const zipPath = path.join(tempRoot, 'starter.zip')
+    const extractedRoot = path.join(tempRoot, 'extracted')
+    try {
+      await fs.mkdir(extractedRoot, { recursive: true })
+      await fs.writeFile(zipPath, Buffer.from(payload.zipData))
+      await extract(zipPath, { dir: extractedRoot })
+
+      const extractedEntries = await fs.readdir(extractedRoot, {
+        withFileTypes: true,
+      })
+      const extractedFolder = extractedEntries.find((entry) =>
+        entry.isDirectory()
+      )
+      if (!extractedFolder) {
+        throw new Error('Extracted project folder not found')
+      }
+      const extractedProjectPath = path.join(extractedRoot, extractedFolder.name)
+      return listRelativePaths(extractedProjectPath)
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true })
+    }
+  }
+)
+
+ipcMain.handle(
+  'project:zip-file-content',
+  async (_event, payload: { zipData: number[]; filePath: string }) => {
+    if (!payload || !Array.isArray(payload.zipData)) {
+      throw new Error('Invalid zip payload')
+    }
+    if (typeof payload.filePath !== 'string' || !payload.filePath.trim()) {
+      throw new Error('File path is required')
+    }
+
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'spring-zip-file-'))
+    const zipPath = path.join(tempRoot, 'starter.zip')
+    const extractedRoot = path.join(tempRoot, 'extracted')
+    try {
+      await fs.mkdir(extractedRoot, { recursive: true })
+      await fs.writeFile(zipPath, Buffer.from(payload.zipData))
+      await extract(zipPath, { dir: extractedRoot })
+
+      const extractedEntries = await fs.readdir(extractedRoot, {
+        withFileTypes: true,
+      })
+      const extractedFolder = extractedEntries.find((entry) =>
+        entry.isDirectory()
+      )
+      if (!extractedFolder) {
+        throw new Error('Extracted project folder not found')
+      }
+
+      const extractedProjectPath = path.join(extractedRoot, extractedFolder.name)
+      const normalizedRelativePath = payload.filePath
+        .split('/')
+        .filter(Boolean)
+        .join(path.sep)
+      const requestedPath = path.join(extractedProjectPath, normalizedRelativePath)
+      const relativeCheck = path.relative(extractedProjectPath, requestedPath)
+      if (
+        relativeCheck.startsWith('..') ||
+        path.isAbsolute(relativeCheck) ||
+        payload.filePath.endsWith('/')
+      ) {
+        throw new Error('Invalid file path')
+      }
+      const stat = await fs.stat(requestedPath)
+      if (!stat.isFile()) {
+        throw new Error('Requested path is not a file')
+      }
+      return fs.readFile(requestedPath, 'utf8')
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true })
+    }
+  }
+)
+
 ipcMain.handle(
   'project:generate',
   async (
