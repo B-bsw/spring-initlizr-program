@@ -7,7 +7,7 @@ import {
 } from "../../models/MetadataMapper";
 import { useMemo } from "react";
 import DependencyModal from "../ui/DependencyModal";
-import { Folder, Trash2 } from "lucide-react";
+import { Copy, Folder, Trash2 } from "lucide-react";
 
 type Props = {
   theme: Theme;
@@ -72,7 +72,7 @@ export default function DependencySection({
           <InputGroup.Suffix className="pr-1">
             <button
               type="button"
-              className={`m-1 cursor-pointer rounded-md p-1 hover:bg-zinc-200`}
+              className={`m-1 cursor-pointer rounded-md p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600`}
               onClick={onPickOutputLocation}
               aria-label="Browse output location"
             >
