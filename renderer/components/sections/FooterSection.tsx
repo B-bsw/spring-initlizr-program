@@ -1,6 +1,6 @@
 import type { Theme } from "../../types/types";
 import { ThemeStyle } from "../../models/ThemeStyle";
-import { buttonBase } from "../../utils/constants";
+import { Button } from "@heroui/react";
 
 export default function FooterSection({
   theme,
@@ -21,30 +21,22 @@ export default function FooterSection({
   return (
     <div className={`${className}`}>
       <div
-        className={`flex items-center justify-center py-3 ${style.actionBg}`}
+        className={`flex items-center justify-center gap-5 py-3 ${style.actionBg}`}
       >
-        <button
-          type="button"
-          className={`${buttonBase} mr-2 border-[#6db33f] bg-[#6db33f] text-white`}
+        <Button
           onClick={onGenerate}
-          disabled={generating}
+          isDisabled={generating}
+          className="rounded-sm bg-zinc-500 dark:bg-zinc-700 dark:text-white"
         >
           {generating ? "Generating..." : "Generate"}
-        </button>
-        <button
-          type="button"
-          className={`${buttonBase} mr-2 ${style.outlineButton}`}
+        </Button>
+        <Button
           onClick={onExplore}
-          disabled={exploring}
+          isDisabled={exploring}
+          className="rounded-sm border border-zinc-500 bg-white text-zinc-500 dark:border-zinc-700 dark:bg-transparent dark:text-white"
         >
           {exploring ? "Exploring..." : "Explore"}
-        </button>
-        <button
-          type="button"
-          className={`${buttonBase} ${style.outlineButton}`}
-        >
-          ...
-        </button>
+        </Button>
       </div>
     </div>
   );

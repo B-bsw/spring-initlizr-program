@@ -36,9 +36,9 @@ export default function HomePage() {
   const [exploring, setExploring] = useState(false);
   const [zipData, setZipData] = useState<number[] | null>(null);
   const [zipEntries, setZipEntries] = useState<string[]>([]);
-  const [zipFileContents, setZipFileContents] = useState<Record<string, string>>(
-    {},
-  );
+  const [zipFileContents, setZipFileContents] = useState<
+    Record<string, string>
+  >({});
   const [selectedZipFile, setSelectedZipFile] = useState<string>("");
   const [loadingZipFilePath, setLoadingZipFilePath] = useState<string | null>(
     null,

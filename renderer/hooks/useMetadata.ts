@@ -11,7 +11,7 @@ export default function useMetadata() {
     const load = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api", { method: "GET" });
+        const response = await fetch("https://api-springboot-initializr.vercel.app/api", { method: "GET" });
         if (!response.ok) {
           throw new Error(`Metadata request failed (${response.status})`);
         }
@@ -20,7 +20,7 @@ export default function useMetadata() {
           lists: {
             project: (json?.type?.values ?? [])
               .filter(
-                (item: { action?: string }) => item.action === "/starter.zip",
+                (item: { action?: string }) => item.action === "https://api-springboot-initializr.vercel.app/starter.zip",
               )
               .map((item: { id: string; name: string }) => ({
                 key: item.id,

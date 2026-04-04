@@ -83,7 +83,12 @@ export default function FormSection(props: Props) {
           <Select.Popover className="rounded-md">
             <ListBox>
               {props.metadata.lists.boot.map((item) => (
-                <ListBox.Item key={item.key} id={item.key} className="rounded-md">
+                <ListBox.Item
+                  textValue={item.text}
+                  key={item.key}
+                  id={item.key}
+                  className="rounded-md"
+                >
                   {item.text}
                 </ListBox.Item>
               ))}

@@ -8,7 +8,9 @@ import extract from 'extract-zip'
 import { createWindow } from './helpers/create-window'
 
 const isProd = process.env.NODE_ENV === 'production'
-const store = new Store<{ outputLocation: string }>({ name: 'preferences' })
+const store = new Store<{ outputLocation: string; theme: 'light' | 'dark' }>({
+  name: 'preferences',
+})
 
 if (isProd) {
   serve({ directory: 'app' })
@@ -26,6 +28,7 @@ if (isProd) {
       preload: path.join(import.meta.dirname, 'preload.js'),
     },
   })
+  mainWindow.maximize()
 
   if (isProd) {
     await mainWindow.loadURL('app://./home')
@@ -48,6 +51,10 @@ ipcMain.handle('output-location:home', () => {
   return app.getPath('home')
 })
 
+ipcMain.handle('theme:get', () => {
+  return store.get('theme', 'light')
+})
+
 ipcMain.handle('output-location:pick', async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory'],
@@ -65,6 +72,13 @@ ipcMain.on('output-location:set', (_event, value: unknown) => {
     return
   }
   store.set('outputLocation', value)
+})
+
+ipcMain.on('theme:set', (_event, value: unknown) => {
+  if (value !== 'light' && value !== 'dark') {
+    return
+  }
+  store.set('theme', value)
 })
 
 ipcMain.on('message', async (event, arg) => {

@@ -3,7 +3,7 @@ import { MetadataMapper, type MetadataModel } from "../models/MetadataMapper";
 export class MetadataService {
   static async getMetadata(): Promise<MetadataModel> {
     try {
-      const response = await fetch("/api", { method: "GET" });
+      const response = await fetch("https://api-springboot-initializr.vercel.app/api", { method: "GET" });
       if (!response.ok) {
         return MetadataMapper.fallback();
       }

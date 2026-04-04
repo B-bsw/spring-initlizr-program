@@ -90,20 +90,26 @@ export default function useHomeState() {
 
   useEffect(() => {
     let mounted = true;
-    const loadOutputLocation = async () => {
+    const loadPreferences = async () => {
       if (!ipc) {
         if (!mounted) return;
-        setState((prev) => ({ ...prev, outputLocation: "", homePath: "" }));
+        setState((prev) => ({
+          ...prev,
+          outputLocation: "",
+          homePath: "",
+          theme: "light",
+        }));
         return;
       }
-      const [value, homePath] = await Promise.all([
+      const [value, homePath, theme] = await Promise.all([
         ipc.invoke<string>("output-location:get"),
         ipc.invoke<string>("output-location:home"),
+        ipc.invoke<Theme>("theme:get"),
       ]);
       if (!mounted) return;
-      setState((prev) => ({ ...prev, outputLocation: value, homePath }));
+      setState((prev) => ({ ...prev, outputLocation: value, homePath, theme }));
     };
-    loadOutputLocation();
+    loadPreferences();
     return () => {
       mounted = false;
     };
@@ -116,7 +122,10 @@ export default function useHomeState() {
     }));
   }, [state.group, state.artifact]);
 
-  const setTheme = (theme: Theme) => setState((prev) => ({ ...prev, theme }));
+  const setTheme = (theme: Theme) => {
+    setState((prev) => ({ ...prev, theme }));
+    ipc?.send("theme:set", theme);
+  };
   const setProject = (project: string) =>
     setState((prev) => ({ ...prev, project }));
   const setName = (name: string) => setState((prev) => ({ ...prev, name }));

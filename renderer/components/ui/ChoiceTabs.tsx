@@ -29,7 +29,7 @@ export default function ChoiceTabs({
             <Tabs.Tab
               key={item.key}
               id={item.key}
-              className={`cursor-pointer rounded-sm px-2.5 py-1.5 text-[14px] font-medium text-nowrap text-black transition-colors dark:text-white ${selected === item.key ? "bg-zinc-300 dark:bg-zinc-700" : "hover:bg-zinc-300/80"}`}
+              className={`cursor-pointer rounded-sm px-2.5 py-1.5 text-[14px] font-medium text-nowrap text-black transition-colors dark:text-white ${selected === item.key ? "bg-zinc-300 dark:bg-zinc-700" : "hover:bg-zinc-300/80 dark:hover:bg-zinc-700"}`}
             >
               {item.text}
             </Tabs.Tab>
