@@ -47,13 +47,34 @@ export default function HomePage() {
   const { setTheme } = useTheme();
 
   const fetchStarterZip = async () => {
-    const response = await fetch("https://api-springboot-initializr.vercel.app/api/starter", { method: "GET" });
-    if (!response.ok) {
-      throw new Error(`Generate failed (${response.status})`);
-    }
-    const arrayBuffer = await response.arrayBuffer();
-    const bytes = Array.from(new Uint8Array(arrayBuffer));
-    return bytes;
+    return window.ipc.invoke<
+      number[],
+      {
+        type: string;
+        language: string;
+        bootVersion: string;
+        baseDir: string;
+        groupId: string;
+        artifactId: string;
+        packageName: string;
+        packaging: string;
+        javaVersion: string;
+        configurationFileFormat: string;
+        dependencies: string[];
+      }
+    >("project:starter-zip", {
+      type: state.project,
+      language: state.language,
+      bootVersion: state.boot,
+      baseDir: state.name,
+      groupId: state.group,
+      artifactId: state.artifact,
+      packageName: state.packageName,
+      packaging: state.packaging,
+      javaVersion: state.java,
+      configurationFileFormat: state.configFormat,
+      dependencies: state.selectedDependencies,
+    });
   };
 
   const handleExplore = async () => {
@@ -122,15 +143,12 @@ export default function HomePage() {
         toast.warning("Please include your Project name.");
         return;
       }
-      if (!zipData) {
-        toast.warning("Please explore and preview ZIP structure first.");
-        return;
-      }
+      const bytes = await fetchStarterZip();
       await window.ipc.invoke<
         { path: string },
         { zipData: number[]; outputLocation: string; projectName: string }
       >("project:generate", {
-        zipData,
+        zipData: bytes,
         outputLocation: state.outputLocation,
         projectName: state.name,
       });

@@ -1,4 +1,4 @@
-name: Build Electron (Win + Mac)
+name: Build Electron
 
 on:
   push:

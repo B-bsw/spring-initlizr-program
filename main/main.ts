@@ -90,6 +90,39 @@ const normalizeFolderName = (name: string) => {
   return normalized.length > 0 ? normalized : 'project'
 }
 
+type StarterZipRequestPayload = {
+  type: string
+  language: string
+  bootVersion: string
+  baseDir: string
+  groupId: string
+  artifactId: string
+  packageName: string
+  packaging: string
+  javaVersion: string
+  configurationFileFormat: string
+  dependencies: string[]
+}
+
+const buildStarterZipUrl = (payload: StarterZipRequestPayload) => {
+  const params = new URLSearchParams({
+    type: payload.type,
+    language: payload.language,
+    bootVersion: payload.bootVersion,
+    baseDir: payload.baseDir,
+    groupId: payload.groupId,
+    artifactId: payload.artifactId,
+    packageName: payload.packageName,
+    packaging: payload.packaging,
+    javaVersion: payload.javaVersion,
+    configurationFileFormat: payload.configurationFileFormat,
+  })
+  if (payload.dependencies.length > 0) {
+    params.set('dependencies', payload.dependencies.join(','))
+  }
+  return `https://start.spring.io/starter.zip?${params.toString()}`
+}
+
 const listRelativePaths = async (rootDir: string) => {
   const walk = async (currentDir: string): Promise<string[]> => {
     const entries = await fs.readdir(currentDir, { withFileTypes: true })
@@ -113,6 +146,47 @@ const listRelativePaths = async (rootDir: string) => {
   const listed = await walk(rootDir)
   return listed.sort((a, b) => a.localeCompare(b))
 }
+
+ipcMain.handle(
+  'project:starter-zip',
+  async (_event, payload: StarterZipRequestPayload) => {
+    if (!payload || typeof payload !== 'object') {
+      throw new Error('Invalid starter payload')
+    }
+    const requiredStringFields: Array<keyof Omit<StarterZipRequestPayload, 'dependencies'>> = [
+      'type',
+      'language',
+      'bootVersion',
+      'baseDir',
+      'groupId',
+      'artifactId',
+      'packageName',
+      'packaging',
+      'javaVersion',
+      'configurationFileFormat',
+    ]
+    for (const field of requiredStringFields) {
+      if (typeof payload[field] !== 'string' || !payload[field].trim()) {
+        throw new Error(`Invalid starter field: ${field}`)
+      }
+    }
+    if (!Array.isArray(payload.dependencies)) {
+      throw new Error('Invalid dependencies')
+    }
+
+    const response = await fetch(buildStarterZipUrl(payload), {
+      method: 'GET',
+      headers: {
+        Accept: 'application/zip',
+      },
+    })
+    if (!response.ok) {
+      throw new Error(`Generate failed (${response.status})`)
+    }
+    const arrayBuffer = await response.arrayBuffer()
+    return Array.from(new Uint8Array(arrayBuffer))
+  }
+)
 
 ipcMain.handle(
   'project:zip-entries',
