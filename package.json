@@ -3,7 +3,7 @@
   "name": "spring-initializr",
   "description": "spring-initializr",
   "version": "1.0.0",
-  "author": "sorawit thassadorn <sorawitthassadorn15@gmail.com>",
+  "author": "bbsw <sorawitthassadorn15@gmail.com>",
   "type": "module",
   "main": "app/main.js",
   "scripts": {
