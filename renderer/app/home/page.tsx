@@ -159,9 +159,7 @@ export default function HomePage() {
   };
 
   return (
-    <main
-      className={`h-screen overflow-hidden md:grid md:grid-cols-[72px_1fr_72px] ${style.bg} ${style.text}`}
-    >
+    <main className={`flex h-screen overflow-hidden ${style.bg} ${style.text}`}>
       <Toast.Provider placement="bottom end" className="z-100 **:rounded-md" />
       <ZipStructureModal
         open={showZipModal}
@@ -198,6 +196,7 @@ export default function HomePage() {
           </a>
         </div>
       </aside>
+
       <section className="hide-scrollbar mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
         <HeaderSection theme={state.theme} onThemeChange={actions.setTheme} />
         {state.loading ? (
@@ -207,7 +206,7 @@ export default function HomePage() {
             {state.error ?? "Metadata unavailable"}
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col xl:flex-row">
             <FormSection
               theme={state.theme}
               metadata={state.metadata}
@@ -254,6 +253,7 @@ export default function HomePage() {
           onExplore={handleExplore}
         />
       </section>
+
       <aside
         className={`sticky top-0 z-99 hidden h-screen md:block ${style.bg}`}
       >
