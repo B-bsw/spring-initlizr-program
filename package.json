@@ -2,7 +2,7 @@
   "private": true,
   "name": "spring-initializr",
   "description": "spring-initializr",
-  "version": "1.1.1",
+  "version": "1.1.2 - beta",
   "author": "bbsw <sorawitthassadorn15@gmail.com>",
   "type": "module",
   "main": "app/main.js",

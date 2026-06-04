@@ -7,9 +7,6 @@ import HeaderSection from "../../components/sections/HeaderSection";
 import FormSection from "../../components/sections/FormSection";
 import DependencySection from "../../components/sections/DependencySection";
 import FooterSection from "../../components/sections/FooterSection";
-import { Menu, Moon, Sun } from "lucide-react";
-import { buttonBase } from "../../utils/constants";
-import { IconBrandGithubFilled } from "@tabler/icons-react";
 import { Toast, toast } from "@heroui/react";
 import { useTheme } from "next-themes";
 import ZipStructureModal from "../../components/ui/ZipStructureModal";
@@ -170,35 +167,15 @@ export default function HomePage() {
         onSelectFile={handleSelectZipFile}
         onClose={() => setShowZipModal(false)}
       />
-      <aside
-        className={`${style.bg} sticky top-0 z-99 hidden h-screen md:block`}
-      >
-        <div
-          className={`flex h-full flex-col items-center justify-between border-r px-2.5 py-3.5 ${style.border}`}
-        >
-          <button
-            type="button"
-            className="cursor-pointer rounded-sm border-0 bg-transparent opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500"
-            aria-label="Menu"
-          >
-            <Menu size={24} />
-          </button>
-          <a
-            className="cursor-pointer rounded-full border-0 bg-transparent opacity-80 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500"
-            href="https://github.com/B-bsw/spring-initlizr-program"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <IconBrandGithubFilled
-              className={`rounded-full p-1 ${style.isDark ? "bg-white text-black" : "bg-black text-white"}`}
-              size={30}
-            />
-          </a>
-        </div>
-      </aside>
 
-      <section className="hide-scrollbar mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
-        <HeaderSection theme={state.theme} onThemeChange={actions.setTheme} />
+      <section className="hide-scrollbar mx-auto h-screen w-full max-w-4xl overflow-y-auto px-6 pb-24">
+        <HeaderSection 
+          theme={state.theme} 
+          onThemeChange={(newTheme) => {
+            setTheme(newTheme);
+            actions.setTheme(newTheme);
+          }} 
+        />
         {state.loading ? (
           <div className="text-sm opacity-70">Loading metadata…</div>
         ) : state.error || !state.metadata ? (
@@ -253,49 +230,6 @@ export default function HomePage() {
           onExplore={handleExplore}
         />
       </section>
-
-      <aside
-        className={`sticky top-0 z-99 hidden h-screen md:block ${style.bg}`}
-      >
-        <div
-          className={`flex h-full flex-col items-center justify-between border-l px-2.5 py-3.5 ${style.border}`}
-        >
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              className={`${buttonBase} h-10 w-10 p-0 ${
-                state.theme === "light"
-                  ? "border-[#6db33f] bg-[#6db33f] text-white"
-                  : style.outlineButton
-              } flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500`}
-              onClick={() => {
-                setTheme("light");
-                actions.setTheme("light");
-              }}
-              aria-label="Enable light mode"
-            >
-              <div>
-                <Sun size={16} />
-              </div>
-            </button>
-            <button
-              type="button"
-              className={`${buttonBase} h-10 w-10 p-0 ${
-                state.theme === "dark"
-                  ? "border-[#6db33f] bg-[#6db33f] text-[#111111]"
-                  : style.outlineButton
-              } flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500`}
-              onClick={() => {
-                setTheme("dark");
-                actions.setTheme("dark");
-              }}
-              aria-label="Enable dark mode"
-            >
-              <Moon size={16} />
-            </button>
-          </div>
-        </div>
-      </aside>
     </main>
   );
 }
