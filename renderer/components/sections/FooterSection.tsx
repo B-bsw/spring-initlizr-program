@@ -21,19 +21,19 @@ export default function FooterSection({
   return (
     <div className={`${className}`}>
       <div
-        className={`flex items-center justify-center gap-5 py-3 ${style.actionBg}`}
+        className={`flex items-center justify-center gap-3 py-2 ${style.actionBg} border-t border-neutral-200 dark:border-neutral-800`}
       >
         <Button
           onClick={onGenerate}
           isDisabled={generating}
-          className="rounded-sm bg-zinc-500 dark:bg-zinc-700 dark:text-white"
+          className="rounded-sm bg-lime-600 hover:bg-lime-700 text-white font-medium transition-colors border-none min-w-[100px] h-7 min-h-0 text-xs px-3"
         >
           {generating ? "Generating..." : "Generate"}
         </Button>
         <Button
           onClick={onExplore}
           isDisabled={exploring}
-          className="rounded-sm border border-zinc-500 bg-white text-zinc-500 dark:border-zinc-700 dark:bg-transparent dark:text-white"
+          className="rounded-sm border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 transition-colors font-medium min-w-[100px] h-7 min-h-0 text-xs px-3"
         >
           {exploring ? "Exploring..." : "Explore"}
         </Button>

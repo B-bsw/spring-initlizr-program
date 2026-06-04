@@ -178,13 +178,13 @@ export default function HomePage() {
         >
           <button
             type="button"
-            className="cursor-pointer border-0 bg-transparent opacity-90"
+            className="cursor-pointer rounded-sm border-0 bg-transparent opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500"
             aria-label="Menu"
           >
-            <Menu />
+            <Menu size={24} />
           </button>
           <a
-            className="cursor-pointer border-0 bg-transparent opacity-90"
+            className="cursor-pointer rounded-full border-0 bg-transparent opacity-80 transition-opacity hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500"
             href="https://github.com/B-bsw/spring-initlizr-program"
             target="_blank"
             rel="noreferrer"
@@ -200,9 +200,9 @@ export default function HomePage() {
       <section className="hide-scrollbar mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
         <HeaderSection theme={state.theme} onThemeChange={actions.setTheme} />
         {state.loading ? (
-          <div className="text-[14px] opacity-80">Loading metadata…</div>
+          <div className="text-sm opacity-70">Loading metadata…</div>
         ) : state.error || !state.metadata ? (
-          <div className="text-[14px] text-red-500">
+          <div className="text-sm text-red-500">
             {state.error ?? "Metadata unavailable"}
           </div>
         ) : (
@@ -263,35 +263,35 @@ export default function HomePage() {
           <div className="flex flex-col gap-2">
             <button
               type="button"
-              className={`${buttonBase} h-10.5 w-10.5 p-0 ${
+              className={`${buttonBase} h-10 w-10 p-0 ${
                 state.theme === "light"
                   ? "border-[#6db33f] bg-[#6db33f] text-white"
                   : style.outlineButton
-              }flex items-center justify-center`}
+              } flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500`}
               onClick={() => {
                 setTheme("light");
                 actions.setTheme("light");
               }}
-              aria-label="Enable  light mode"
+              aria-label="Enable light mode"
             >
               <div>
-                <Sun size={14} />
+                <Sun size={16} />
               </div>
             </button>
             <button
               type="button"
-              className={`${buttonBase} h-10.5 w-10.5 p-0 ${
+              className={`${buttonBase} h-10 w-10 p-0 ${
                 state.theme === "dark"
                   ? "border-[#6db33f] bg-[#6db33f] text-[#111111]"
                   : style.outlineButton
-              }flex items-center justify-center`}
+              } flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500`}
               onClick={() => {
                 setTheme("dark");
                 actions.setTheme("dark");
               }}
               aria-label="Enable dark mode"
             >
-              <Moon size={14} />
+              <Moon size={16} />
             </button>
           </div>
         </div>

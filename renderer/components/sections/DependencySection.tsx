@@ -56,27 +56,28 @@ export default function DependencySection({
 
   return (
     <div className="md:flex-1">
-      <section className="mb-6">
-        <div className={`mb-[0.8rem] border-b pb-[0.8rem] ${style.border}`}>
-          <h3 className="mb-0 text-[14px] font-semibold">Location</h3>
+      <section className="mb-4">
+        <div className={`mb-2 border-b pb-2 ${style.border}`}>
+          <h3 className="mb-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide">Location</h3>
         </div>
         <InputGroup
-          className="w-full rounded-sm border border-zinc-200 bg-white dark:border-[#4B5053] dark:bg-[#272A2D]"
+          className="w-full rounded-sm border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 transition-all focus-within:ring-1 focus-within:ring-lime-500 focus-within:border-lime-500 text-xs"
           variant="secondary"
         >
           <InputGroup.Input
             value={outputLocationDisplay || "No output directory selected"}
             readOnly
+            className="px-2 py-1 text-xs"
             aria-label="Output location"
           />
           <InputGroup.Suffix className="pr-1">
             <button
               type="button"
-              className={`m-1 cursor-pointer rounded-md p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600`}
+              className={`m-0.5 cursor-pointer rounded p-1 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-lime-500`}
               onClick={onPickOutputLocation}
               aria-label="Browse output location"
             >
-              <Folder size={16} />
+              <Folder size={14} />
             </button>
           </InputGroup.Suffix>
         </InputGroup>
@@ -84,14 +85,14 @@ export default function DependencySection({
           <p className="mt-2 text-[12px] opacity-70">{outputLocation}</p>
         )}*/}
       </section>
-      <section className="mb-6">
+      <section className="mb-4">
         <div
-          className={`mb-[0.8rem] flex items-center justify-between gap-4 border-b pb-[0.8rem] ${style.border}`}
+          className={`mb-2 flex items-center justify-between gap-4 border-b pb-2 ${style.border}`}
         >
-          <h3 className="mb-0 text-[14px] font-semibold">Dependencies</h3>
+          <h3 className="mb-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide">Dependencies</h3>
           <DependencyModal
             trigger={
-              <Button className="rounded-md bg-zinc-300 text-black dark:bg-zinc-700 dark:text-white">
+              <Button className="rounded-sm bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 transition-colors font-medium border border-neutral-200 dark:border-neutral-700 text-xs h-7 min-h-0 px-2">
                 Add dependencies
               </Button>
             }
@@ -102,14 +103,14 @@ export default function DependencySection({
           />
         </div>
         <div
-          className={`${selectedDependencyItems.length < 2 && "border-0"} no-scrollbar max-h-[45vh] overflow-scroll rounded-md border p-1`}
+          className={`${selectedDependencyItems.length < 2 && "border-0"} no-scrollbar max-h-[45vh] overflow-scroll rounded-sm border p-0.5`}
         >
           <ul className="no-scrollbar m-0 list-none p-0">
             {selectedDependencyItems.length === 0 && (
               <li
-                className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
+                className={`border-t py-1.5 first:border-t-0 first:pt-0 ${style.border}`}
               >
-                <span className="text-[14px] opacity-70">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 italic">
                   No dependencies selected
                 </span>
               </li>
@@ -117,16 +118,16 @@ export default function DependencySection({
             {selectedDependencyItems.map((dependency) => (
               <li
                 key={dependency.key}
-                className={`border-t py-[0.8rem] first:border-t-0 first:pt-0 ${style.border}`}
+                className={`border-t py-1.5 first:border-t-0 first:pt-0 ${style.border}`}
               >
-                <div className="flex items-center justify-between gap-3 py-1">
+                <div className="flex items-center justify-between gap-2 py-0.5 group">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm leading-tight font-semibold">
+                    <p className="truncate text-xs leading-tight font-medium text-neutral-900 dark:text-neutral-100">
                       {dependency.text}
                     </p>
 
                     {dependency.description && (
-                      <p className="text-default-500 line-clamp-2 text-sm leading-tight">
+                      <p className="mt-0.5 text-[11px] leading-snug text-neutral-500 dark:text-neutral-400 line-clamp-2">
                         {dependency.description}
                       </p>
                     )}
@@ -135,10 +136,11 @@ export default function DependencySection({
                   <Button
                     onClick={() => toggleDependency(dependency.key)}
                     isIconOnly
-                    variant="danger"
-                    className="shrink-0 rounded-md"
+                    variant="light"
+                    className="shrink-0 rounded text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 h-6 w-6 min-h-0 min-w-0 p-0"
+                    aria-label={`Remove ${dependency.text}`}
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={14} />
                   </Button>
                 </div>
               </li>
