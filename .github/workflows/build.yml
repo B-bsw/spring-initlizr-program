@@ -66,14 +66,14 @@ jobs:
         with:
           node-version: 20
 
+      - name: Install pacman build deps
+        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
+
       - name: Install deps
         run: npm install
 
       - name: Build app
         run: npm run build
-
-      - name: Install pacman build deps
-        run: sudo apt-get update && sudo apt-get install -y libarchive-tools
 
       - name: Build Linux
         run: npx electron-builder --linux
