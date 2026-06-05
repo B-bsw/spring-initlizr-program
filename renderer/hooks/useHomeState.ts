@@ -26,6 +26,7 @@ export type HomeState = {
   outputLocation: string;
   homePath: string;
   selectedDependencies: string[];
+  ide: string;
 };
 
 export default function useHomeState() {
@@ -48,6 +49,7 @@ export default function useHomeState() {
     outputLocation: "",
     homePath: "",
     selectedDependencies: [],
+    ide: "code", // default, will be updated in useEffect
   });
 
   useEffect(() => {
@@ -107,7 +109,17 @@ export default function useHomeState() {
         ipc.invoke<Theme>("theme:get"),
       ]);
       if (!mounted) return;
-      setState((prev) => ({ ...prev, outputLocation: value, homePath, theme }));
+      
+      const isMac = navigator.userAgent.toLowerCase().includes("mac");
+      const defaultIde = isMac ? "idea" : "code";
+
+      setState((prev) => ({ 
+        ...prev, 
+        outputLocation: value, 
+        homePath, 
+        theme,
+        ide: defaultIde
+      }));
     };
     loadPreferences();
     return () => {
@@ -158,6 +170,7 @@ export default function useHomeState() {
   const setJava = (java: string) => setState((prev) => ({ ...prev, java }));
   const setConfigFormat = (configFormat: string) =>
     setState((prev) => ({ ...prev, configFormat }));
+  const setIde = (ide: string) => setState((prev) => ({ ...prev, ide }));
   const setOutputLocation = (outputLocation: string) =>
     setState((prev) => ({ ...prev, outputLocation }));
   const setSelectedDependencies = (selectedDependencies: string[]) =>
@@ -216,6 +229,7 @@ export default function useHomeState() {
       setPackaging,
       setJava,
       setConfigFormat,
+      setIde,
       setOutputLocation: saveOutputLocation,
       pickOutputLocation,
       setSelectedDependencies,

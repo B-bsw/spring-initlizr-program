@@ -7,9 +7,6 @@ import HeaderSection from "../../components/sections/HeaderSection";
 import FormSection from "../../components/sections/FormSection";
 import DependencySection from "../../components/sections/DependencySection";
 import FooterSection from "../../components/sections/FooterSection";
-import { Menu, Moon, Sun } from "lucide-react";
-import { buttonBase } from "../../utils/constants";
-import { IconBrandGithubFilled } from "@tabler/icons-react";
 import { Toast, toast } from "@heroui/react";
 import { useTheme } from "next-themes";
 import ZipStructureModal from "../../components/ui/ZipStructureModal";
@@ -79,6 +76,10 @@ export default function HomePage() {
 
   const handleExplore = async () => {
     try {
+      if (!state.name) {
+        toast.warning("Please include your Project name.");
+        return;
+      }
       setExploring(true);
       const bytes = await fetchStarterZip();
       const entries = await window.ipc.invoke<string[], { zipData: number[] }>(
@@ -146,13 +147,14 @@ export default function HomePage() {
       const bytes = await fetchStarterZip();
       await window.ipc.invoke<
         { path: string },
-        { zipData: number[]; outputLocation: string; projectName: string }
+        { zipData: number[]; outputLocation: string; projectName: string; ide: string }
       >("project:generate", {
         zipData: bytes,
         outputLocation: state.outputLocation,
         projectName: state.name,
+        ide: state.ide,
       });
-      toast.success("generate project success");
+      toast.success("project generated and opened in IDE");
     } finally {
       setGenerating(false);
     }
@@ -170,39 +172,19 @@ export default function HomePage() {
         onSelectFile={handleSelectZipFile}
         onClose={() => setShowZipModal(false)}
       />
-      <aside
-        className={`${style.bg} sticky top-0 z-99 hidden h-screen md:block`}
-      >
-        <div
-          className={`flex h-full flex-col items-center justify-between border-r px-2.5 py-3.5 ${style.border}`}
-        >
-          <button
-            type="button"
-            className="cursor-pointer border-0 bg-transparent opacity-90"
-            aria-label="Menu"
-          >
-            <Menu />
-          </button>
-          <a
-            className="cursor-pointer border-0 bg-transparent opacity-90"
-            href="https://github.com/B-bsw/spring-initlizr-program"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <IconBrandGithubFilled
-              className={`rounded-full p-1 ${style.isDark ? "bg-white text-black" : "bg-black text-white"}`}
-              size={30}
-            />
-          </a>
-        </div>
-      </aside>
 
-      <section className="hide-scrollbar mx-auto h-screen w-full max-w-330 overflow-y-auto px-3 pb-24">
-        <HeaderSection theme={state.theme} onThemeChange={actions.setTheme} />
+      <section className="hide-scrollbar mx-auto h-screen w-full max-w-4xl max-xl:max-w-2xl overflow-y-auto px-6 pb-24">
+        <HeaderSection
+          theme={state.theme}
+          onThemeChange={(newTheme) => {
+            setTheme(newTheme);
+            actions.setTheme(newTheme);
+          }}
+        />
         {state.loading ? (
-          <div className="text-[14px] opacity-80">Loading metadata…</div>
+          <div className="text-sm opacity-70">Loading metadata…</div>
         ) : state.error || !state.metadata ? (
-          <div className="text-[14px] text-red-500">
+          <div className="text-sm text-red-500">
             {state.error ?? "Metadata unavailable"}
           </div>
         ) : (
@@ -220,6 +202,8 @@ export default function HomePage() {
               packaging={state.packaging}
               java={state.java}
               configFormat={state.configFormat}
+              outputLocation={state.outputLocation}
+              outputLocationDisplay={computed.outputLocationDisplay}
               onProject={actions.setProject}
               onName={actions.setName}
               onLanguage={actions.setLanguage}
@@ -230,6 +214,7 @@ export default function HomePage() {
               onPackaging={actions.setPackaging}
               onJava={actions.setJava}
               onConfigFormat={actions.setConfigFormat}
+              onPickOutputLocation={actions.pickOutputLocation}
             />
             <DependencySection
               theme={state.theme}
@@ -237,9 +222,6 @@ export default function HomePage() {
               dependencyGroups={state.metadata.lists.dependencyGroups}
               boot={state.boot}
               selectedDependencies={state.selectedDependencies}
-              outputLocation={state.outputLocation}
-              outputLocationDisplay={computed.outputLocationDisplay}
-              onPickOutputLocation={actions.pickOutputLocation}
               onSelectedDependenciesChange={actions.setSelectedDependencies}
             />
           </div>
@@ -253,49 +235,6 @@ export default function HomePage() {
           onExplore={handleExplore}
         />
       </section>
-
-      <aside
-        className={`sticky top-0 z-99 hidden h-screen md:block ${style.bg}`}
-      >
-        <div
-          className={`flex h-full flex-col items-center justify-between border-l px-2.5 py-3.5 ${style.border}`}
-        >
-          <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              className={`${buttonBase} h-10.5 w-10.5 p-0 ${
-                state.theme === "light"
-                  ? "border-[#6db33f] bg-[#6db33f] text-white"
-                  : style.outlineButton
-              }flex items-center justify-center`}
-              onClick={() => {
-                setTheme("light");
-                actions.setTheme("light");
-              }}
-              aria-label="Enable  light mode"
-            >
-              <div>
-                <Sun size={14} />
-              </div>
-            </button>
-            <button
-              type="button"
-              className={`${buttonBase} h-10.5 w-10.5 p-0 ${
-                state.theme === "dark"
-                  ? "border-[#6db33f] bg-[#6db33f] text-[#111111]"
-                  : style.outlineButton
-              }flex items-center justify-center`}
-              onClick={() => {
-                setTheme("dark");
-                actions.setTheme("dark");
-              }}
-              aria-label="Enable dark mode"
-            >
-              <Moon size={14} />
-            </button>
-          </div>
-        </div>
-      </aside>
     </main>
   );
 }
