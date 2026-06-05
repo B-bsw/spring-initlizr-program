@@ -76,6 +76,10 @@ export default function HomePage() {
 
   const handleExplore = async () => {
     try {
+      if (!state.name) {
+        toast.warning("Please include your Project name.");
+        return;
+      }
       setExploring(true);
       const bytes = await fetchStarterZip();
       const entries = await window.ipc.invoke<string[], { zipData: number[] }>(
@@ -143,13 +147,14 @@ export default function HomePage() {
       const bytes = await fetchStarterZip();
       await window.ipc.invoke<
         { path: string },
-        { zipData: number[]; outputLocation: string; projectName: string }
+        { zipData: number[]; outputLocation: string; projectName: string; ide: string }
       >("project:generate", {
         zipData: bytes,
         outputLocation: state.outputLocation,
         projectName: state.name,
+        ide: state.ide,
       });
-      toast.success("generate project success");
+      toast.success("project generated and opened in IDE");
     } finally {
       setGenerating(false);
     }
@@ -168,13 +173,13 @@ export default function HomePage() {
         onClose={() => setShowZipModal(false)}
       />
 
-      <section className="hide-scrollbar mx-auto h-screen w-full max-w-4xl overflow-y-auto px-6 pb-24">
-        <HeaderSection 
-          theme={state.theme} 
+      <section className="hide-scrollbar mx-auto h-screen w-full max-w-4xl max-xl:max-w-2xl overflow-y-auto px-6 pb-24">
+        <HeaderSection
+          theme={state.theme}
           onThemeChange={(newTheme) => {
             setTheme(newTheme);
             actions.setTheme(newTheme);
-          }} 
+          }}
         />
         {state.loading ? (
           <div className="text-sm opacity-70">Loading metadata…</div>
@@ -197,6 +202,8 @@ export default function HomePage() {
               packaging={state.packaging}
               java={state.java}
               configFormat={state.configFormat}
+              outputLocation={state.outputLocation}
+              outputLocationDisplay={computed.outputLocationDisplay}
               onProject={actions.setProject}
               onName={actions.setName}
               onLanguage={actions.setLanguage}
@@ -207,6 +214,7 @@ export default function HomePage() {
               onPackaging={actions.setPackaging}
               onJava={actions.setJava}
               onConfigFormat={actions.setConfigFormat}
+              onPickOutputLocation={actions.pickOutputLocation}
             />
             <DependencySection
               theme={state.theme}
@@ -214,9 +222,6 @@ export default function HomePage() {
               dependencyGroups={state.metadata.lists.dependencyGroups}
               boot={state.boot}
               selectedDependencies={state.selectedDependencies}
-              outputLocation={state.outputLocation}
-              outputLocationDisplay={computed.outputLocationDisplay}
-              onPickOutputLocation={actions.pickOutputLocation}
               onSelectedDependenciesChange={actions.setSelectedDependencies}
             />
           </div>

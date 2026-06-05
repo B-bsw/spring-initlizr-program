@@ -8,28 +8,26 @@ export class ThemeStyle {
   }
 
   get bg() {
-    return this.isDark ? "bg-[#1b1f23]" : "bg-white";
+    return "bg-white dark:bg-neutral-900/50";
   }
 
   get text() {
-    return this.isDark ? "text-white" : "text-[#111111]";
+    return "text-neutral-900 dark:text-neutral-100";
   }
 
   get border() {
-    return this.isDark ? "border-[#4a5053]" : "border-[#dce8e8]";
+    return "border-neutral-200 dark:border-neutral-800";
   }
 
   get actionBg() {
-    return this.isDark ? "bg-[#262a2d]" : "bg-[#ecf2f2]";
+    return "bg-neutral-50 dark:bg-neutral-900";
   }
 
   get outlineButton() {
-    return this.isDark ? "border-white text-white" : "border-[#111111] text-[#111111]";
+    return "border-neutral-300 text-neutral-700 dark:border-neutral-700 dark:text-neutral-200";
   }
 
   get inputTone() {
-    return this.isDark
-      ? "border-[#4a5053] bg-[#262a2d] text-white"
-      : "border-[#dce8e8] bg-white text-[#111111]";
+    return "border-neutral-200 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100";
   }
 }

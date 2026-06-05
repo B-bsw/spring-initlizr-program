@@ -1,8 +1,4 @@
-type LogoProps = {
-  className?: string;
-};
-
-export default function Logo({ className = "" }: LogoProps) {
+export default function Logo({ className = "" }: string) {
   return (
     <svg
       aria-hidden="true"

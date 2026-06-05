@@ -1,4 +1,4 @@
-import { Button, InputGroup } from "@heroui/react";
+import { Button } from "@heroui/react";
 import type { Theme } from "../../types/types";
 import { ThemeStyle } from "../../models/ThemeStyle";
 import {
@@ -7,7 +7,7 @@ import {
 } from "../../models/MetadataMapper";
 import { useMemo } from "react";
 import DependencyModal from "../ui/DependencyModal";
-import { Folder, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 type Props = {
   theme: Theme;
@@ -15,9 +15,6 @@ type Props = {
   dependencyGroups: MetadataModel["lists"]["dependencyGroups"];
   boot: string;
   selectedDependencies: string[];
-  outputLocation: string;
-  outputLocationDisplay: string;
-  onPickOutputLocation: () => void;
   onSelectedDependenciesChange: (next: string[]) => void;
 };
 
@@ -27,9 +24,6 @@ export default function DependencySection({
   dependencyGroups,
   boot,
   selectedDependencies,
-  outputLocation,
-  outputLocationDisplay,
-  onPickOutputLocation,
   onSelectedDependenciesChange,
 }: Props) {
   const style = new ThemeStyle(theme);
@@ -56,35 +50,6 @@ export default function DependencySection({
 
   return (
     <div className="md:flex-1">
-      <section className="mb-4">
-        <div className={`mb-2 border-b pb-2 ${style.border}`}>
-          <h3 className="mb-0 text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wide">Location</h3>
-        </div>
-        <InputGroup
-          className="w-full rounded-sm border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 transition-all focus-within:ring-1 focus-within:ring-lime-500 focus-within:border-lime-500 text-xs"
-          variant="secondary"
-        >
-          <InputGroup.Input
-            value={outputLocationDisplay || "No output directory selected"}
-            readOnly
-            className="px-2 py-1 text-xs"
-            aria-label="Output location"
-          />
-          <InputGroup.Suffix className="pr-1">
-            <button
-              type="button"
-              className={`m-0.5 cursor-pointer rounded p-1 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-700 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-lime-500`}
-              onClick={onPickOutputLocation}
-              aria-label="Browse output location"
-            >
-              <Folder size={14} />
-            </button>
-          </InputGroup.Suffix>
-        </InputGroup>
-        {/*{outputLocation && (
-          <p className="mt-2 text-[12px] opacity-70">{outputLocation}</p>
-        )}*/}
-      </section>
       <section className="mb-4">
         <div
           className={`mb-2 flex items-center justify-between gap-4 border-b pb-2 ${style.border}`}
@@ -136,7 +101,7 @@ export default function DependencySection({
                   <Button
                     onClick={() => toggleDependency(dependency.key)}
                     isIconOnly
-                    variant="light"
+                    variant="ghost"
                     className="shrink-0 rounded text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 h-6 w-6 min-h-0 min-w-0 p-0"
                     aria-label={`Remove ${dependency.text}`}
                   >

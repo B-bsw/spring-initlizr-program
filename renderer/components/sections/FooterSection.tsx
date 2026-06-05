@@ -28,7 +28,7 @@ export default function FooterSection({
           isDisabled={generating}
           className="rounded-sm bg-lime-600 hover:bg-lime-700 text-white font-medium transition-colors border-none min-w-[100px] h-7 min-h-0 text-xs px-3"
         >
-          {generating ? "Generating..." : "Generate"}
+          {generating ? "Creating..." : "Create"}
         </Button>
         <Button
           onClick={onExplore}

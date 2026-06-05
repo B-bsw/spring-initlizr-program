@@ -1,5 +1,6 @@
 import path from 'path'
 import os from 'os'
+import { exec } from 'child_process'
 import { app, dialog, ipcMain } from 'electron'
 import serve from 'electron-serve'
 import Store from 'electron-store'
@@ -276,7 +277,7 @@ ipcMain.handle(
   'project:generate',
   async (
     _event,
-    payload: { zipData: number[]; outputLocation: string; projectName: string }
+    payload: { zipData: number[]; outputLocation: string; projectName: string; ide: string }
   ) => {
     if (!payload || !Array.isArray(payload.zipData)) {
       throw new Error('Invalid zip payload')
@@ -320,6 +321,14 @@ ipcMain.handle(
 
       const extractedProjectPath = path.join(extractedRoot, extractedFolder.name)
       await fs.rename(extractedProjectPath, targetDir)
+
+      if (payload.ide) {
+        exec(`${payload.ide} "${targetDir}"`, (error) => {
+          if (error) {
+            console.error(`Failed to open IDE: ${error}`)
+          }
+        })
+      }
 
       return { path: targetDir }
     } finally {
